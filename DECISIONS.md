@@ -6,8 +6,6 @@ Formato: contexto, decisión, alternativas descartadas, consecuencias.
 
 ## D-001 · Cardinalidad exacta en el perfilado
 
-**Fecha**: 2026-09-20 · **Estado**: aceptada · **Ámbito**: §4
-
 **Contexto.** `approx_count_distinct` de Spark opera sobre HyperLogLog. A la escala
 de este dataset (decenas a miles de filas) el error es visible: reportaba 83
 `org_id` distintos sobre 80 filas, lo que invalidaba la lectura del perfil.
@@ -24,8 +22,6 @@ pipeline productivo sobre eventos, la aproximación vuelve a ser preferible.
 ---
 
 ## D-002 · Los rangos válidos se derivan del dominio observado
-
-**Fecha**: 2026-09-20 · **Estado**: aceptada · **Ámbito**: §4, reglas de calidad
 
 **Contexto.** La primera pasada del perfilado evaluó `nps_score` contra la escala
 0–10 de una respuesta individual de encuesta y marcó 59 de 80 registros como
@@ -45,8 +41,6 @@ habría producido 251 falsos positivos sobre 275 eventos v2.
 
 ## D-003 · `value` se lee como String en la fuente de eventos
 
-**Fecha**: 2026-09-20 · **Estado**: aceptada · **Ámbito**: §4, ingesta streaming
-
 **Contexto.** La fuente emite `value` indistintamente como número o como texto.
 Un esquema que lo declare `Double` descarta silenciosamente las variantes texto.
 
@@ -59,8 +53,6 @@ trazabilidad al dato crudo.
 ---
 
 ## D-004 · Patrón híbrido segmentado con reconciliación acotada
-
-**Fecha**: 2026-09-20 · **Estado**: aceptada · **Ámbito**: §6 · **Cierra**: A-01
 
 **Contexto.** Los tres patrones admitidos son Lambda, Kappa e híbrido. Las fuentes
 tienen latencias de negocio incompatibles: eventos continuos frente a facturación
@@ -96,8 +88,6 @@ necesaria.
 
 ## D-005 · Bronze particiona por fecha de ingesta; Silver y Gold por fecha de evento
 
-**Fecha**: 2026-09-20 · **Estado**: aceptada · **Ámbito**: §8.3 · **Cierra**: A-02
-
 **Contexto.** Los archivos de eventos cubren 59 días sin orden cronológico. Con
 Bronze particionado por fecha de evento, cada micro-lote escribiría en casi todas
 las particiones del histórico: small files en su forma más aguda.
@@ -122,8 +112,6 @@ justifica contra el caso dimensionado en la §3.2.
 
 ## D-006 · `nps_surveys` es la fuente de verdad del NPS
 
-**Fecha**: 2026-09-20 · **Estado**: aceptada · **Ámbito**: §8.8 · **Cierra**: A-03
-
 **Contexto.** El NPS aparece en `customers_orgs.nps_score` (80 orgs, 11 nulos) y
 en `nps_surveys.csv` (92 encuestas, 60 orgs, 32 con más de una), con valores que
 no coinciden.
@@ -139,8 +127,6 @@ Eliminar la columna del CRM las dejaría sin NPS. La regla de consumo es usar la
 ---
 
 ## D-007 · La tasa de cambio se fuerza a 1,0 para facturas en USD
-
-**Fecha**: 2026-09-20 · **Estado**: aceptada · **Ámbito**: §8.8 · **Cierra**: A-06
 
 **Contexto.** Las tasas de ARS (mediana 0,00150) y EUR (mediana 1,10467) son
 plausibles. Las 160 filas en USD tienen tasas entre 0,85463 y 1,11791 en lugar de
@@ -162,8 +148,6 @@ más de la mitad del dataset.
 ---
 
 ## D-008 · Watermark de 7 días sobre el event-time de los eventos
-
-**Fecha**: 2026-09-20 · **Estado**: aceptada · **Ámbito**: §9.5 · **Cierra**: A-05
 
 **Contexto.** Cada archivo cubre el rango completo del dataset, con lo que el
 primer micro-lote ya lleva el máximo event-time a 2025-08-31. Desde el segundo en
@@ -193,8 +177,6 @@ descartado caería y el watermark podría reducirse.
 
 ## D-009 · El rechazo por calidad opera sobre el campo derivado, no sobre el registro
 
-**Fecha**: 2026-09-20 · **Estado**: aceptada · **Ámbito**: §9.7, §10 · **Refina**: §9.7
-
 **Contexto.** Al trazar el job de MapReduce con registros reales apareció una
 tensión con la regla escrita en la §9.7. Un evento con `value` nulo tiene la
 métrica inutilizable, pero su `cost_usd_increment` es perfectamente válido.
@@ -218,8 +200,6 @@ Silver.
 ---
 
 ## D-010 · MAD sobre la serie diaria por organización y servicio
-
-**Fecha**: 2026-09-20 · **Estado**: aceptada · **Ámbito**: §11.2 · **Cierra**: A-04
 
 **Contexto.** Los tres métodos admitidos se evaluaron sobre los datos reales.
 Aplicados globalmente, MAD marca el 23,9% de los eventos, z-score el 1,7% y
@@ -254,13 +234,3 @@ de negocio distinto y la sesgarían.
 **Límite reconocido.** Con 4 meses no hay estacionalidad observable. Un método con
 descomposición de tendencia y estacionalidad sería superior pero no se puede
 calibrar con esta ventana.
-
----
-
-## Decisiones abiertas
-
-| # | Tema | Bloquea | Fecha objetivo |
-|---|---|---|---|
-| A-07 | Verificar orden cronológico en los ~20 archivos de eventos | §6, §9 | al recibir el dataset completo |
-| A-08 | Modelo de claves definitivo de las tablas de Cassandra | serving | al implementar |
-| A-09 | Alcance final del componente analítico o de ML | P7 | tras la 2.ª entrega |
