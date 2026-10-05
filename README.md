@@ -6,11 +6,11 @@ sobre los datos de un proveedor de nube.
 
 ## Estado
 
-| Entrega | Fecha | Estado |
-|---|---|---|
-| 1ª parcial — Diseño y fundación | 28/09/2026 18:30 | ✅ lista para entregar |
-| 2ª parcial — Implementación técnica | 16/11/2026 18:30 | ⬜ |
-| Final — MVP integrado y defensa | 07/12/2026 21:30 | ⬜ |
+| Entrega | Fecha |
+|---|---|
+| 1ª parcial — Diseño y fundación | 28/09/2026 18:30 |
+| 2ª parcial — Implementación técnica | 16/11/2026 18:30 | 
+| Final — MVP integrado y defensa | 07/12/2026 21:30 | 
 
 ## Estructura
 
