@@ -1,0 +1,114 @@
+{
+  "job": "batch_to_bronze",
+  "spark_version": "4.2.0",
+  "ingest_date": "2026-11-12",
+  "ingest_ts": "2026-11-11T23:39:32Z",
+  "fuentes": [
+    {
+      "entity": "customers_orgs",
+      "landing_file": "data/landing/customers_orgs.csv",
+      "natural_key": [
+        "org_id"
+      ],
+      "filas_leidas": 80,
+      "filas_bronze": 80,
+      "filas_quarantine": 0,
+      "quarantine_por_regla": {},
+      "bronze_particion": "data/bronze/customers_orgs/ingest_date=2026-11-12",
+      "archivos_parquet": 1,
+      "bytes": 6877,
+      "segundos": 7.3
+    },
+    {
+      "entity": "users",
+      "landing_file": "data/landing/users.csv",
+      "natural_key": [
+        "user_id"
+      ],
+      "filas_leidas": 800,
+      "filas_bronze": 800,
+      "filas_quarantine": 0,
+      "quarantine_por_regla": {},
+      "bronze_particion": "data/bronze/users/ingest_date=2026-11-12",
+      "archivos_parquet": 1,
+      "bytes": 23789,
+      "segundos": 2.06
+    },
+    {
+      "entity": "resources",
+      "landing_file": "data/landing/resources.csv",
+      "natural_key": [
+        "resource_id"
+      ],
+      "filas_leidas": 400,
+      "filas_bronze": 400,
+      "filas_quarantine": 0,
+      "quarantine_por_regla": {},
+      "bronze_particion": "data/bronze/resources/ingest_date=2026-11-12",
+      "archivos_parquet": 1,
+      "bytes": 11865,
+      "segundos": 1.5
+    },
+    {
+      "entity": "support_tickets",
+      "landing_file": "data/landing/support_tickets.csv",
+      "natural_key": [
+        "ticket_id"
+      ],
+      "filas_leidas": 1000,
+      "filas_bronze": 1000,
+      "filas_quarantine": 0,
+      "quarantine_por_regla": {},
+      "bronze_particion": "data/bronze/support_tickets/ingest_date=2026-11-12",
+      "archivos_parquet": 1,
+      "bytes": 19011,
+      "segundos": 1.35
+    },
+    {
+      "entity": "marketing_touches",
+      "landing_file": "data/landing/marketing_touches.csv",
+      "natural_key": [
+        "touch_id"
+      ],
+      "filas_leidas": 1500,
+      "filas_bronze": 1500,
+      "filas_quarantine": 0,
+      "quarantine_por_regla": {},
+      "bronze_particion": "data/bronze/marketing_touches/ingest_date=2026-11-12",
+      "archivos_parquet": 1,
+      "bytes": 23129,
+      "segundos": 1.42
+    },
+    {
+      "entity": "nps_surveys",
+      "landing_file": "data/landing/nps_surveys.csv",
+      "natural_key": [
+        "org_id",
+        "survey_date"
+      ],
+      "filas_leidas": 92,
+      "filas_bronze": 92,
+      "filas_quarantine": 0,
+      "quarantine_por_regla": {},
+      "bronze_particion": "data/bronze/nps_surveys/ingest_date=2026-11-12",
+      "archivos_parquet": 1,
+      "bytes": 3769,
+      "segundos": 1.22
+    },
+    {
+      "entity": "billing_monthly",
+      "landing_file": "data/landing/billing_monthly.csv",
+      "natural_key": [
+        "invoice_id"
+      ],
+      "filas_leidas": 240,
+      "filas_bronze": 240,
+      "filas_quarantine": 0,
+      "quarantine_por_regla": {},
+      "bronze_particion": "data/bronze/billing_monthly/ingest_date=2026-11-12",
+      "archivos_parquet": 1,
+      "bytes": 12046,
+      "segundos": 1.01
+    }
+  ]
+}
