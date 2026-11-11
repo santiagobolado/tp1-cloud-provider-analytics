@@ -36,7 +36,48 @@ DECISIONS.md Registro de decisiones técnicas y trade-offs
 pip install pyspark
 ```
 
-## Ejecución
+## Quickstart
+
+Entorno de referencia: Google Colab o Linux/macOS con Java 17+. Todos los
+comandos se corren desde la raíz del repo.
+
+```bash
+pip install -r requirements.txt
+```
+
+### 1. Ingesta batch → Bronze
+
+```bash
+python -m src.ingest.batch_to_bronze
+```
+
+Lee las 7 fuentes CSV de `data/landing/` con esquema explícito y escribe:
+
+- `data/bronze/<fuente>/ingest_date=YYYY-MM-DD/` — Parquet, un archivo por corrida
+- `data/quarantine/<fuente>/ingest_date=.../regla=.../` — filas no parseables,
+  con clave nula o con clave duplicada, cada una con su motivo
+- `evidence/runs/batch_to_bronze_<fecha>_<hora>.json` — conteos, rutas y tamaños
+
+Es idempotente: re-ejecutar el mismo día reemplaza solo esa partición. Para fijar
+la fecha: `INGEST_DATE=2026-11-12 python -m src.ingest.batch_to_bronze`.
+
+### Pruebas
+
+```bash
+python -m pytest tests -q
+```
+
+### Reinicio
+
+Las zonas derivadas se regeneran desde Landing:
+
+```bash
+rm -rf data/bronze data/silver data/gold data/quarantine _checkpoints
+```
+
+Configuración: ver `config/.env.example`.
+
+### Perfilado (TP1)
 
 Perfilado exploratorio de las fuentes de Landing:
 

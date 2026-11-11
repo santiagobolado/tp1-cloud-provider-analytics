@@ -234,3 +234,48 @@ de negocio distinto y la sesgarían.
 **Límite reconocido.** Con 4 meses no hay estacionalidad observable. Un método con
 descomposición de tendencia y estacionalidad sería superior pero no se puede
 calibrar con esta ventana.
+
+---
+
+## D-011 · Los maestros batch particionan por `ingest_date` y se reescriben por día
+
+**Fecha**: 2026-11-11 · **Estado**: aceptada · **Ámbito**: ingesta batch · **Precisa**: D-005
+
+**Contexto.** D-005 dejó los maestros "sin particionar o por `ingest_date`" por su
+volumen (80 a 1.500 filas). La consigna (§6.2) exige Bronze en "Parquet
+particionado". Además había que definir cómo se re-ejecuta sin duplicar.
+
+**Decisión.** Las siete fuentes batch particionan por `ingest_date` con
+`coalesce(1)`: un archivo por fuente y por corrida. La escritura es
+`overwrite` con `partitionOverwriteMode=dynamic`: cada corrida reemplaza solo
+su propia partición. Bronze acumula una foto por día; Silver lee la más reciente.
+
+**Alternativas descartadas.**
+- *`append`*: cada re-ejecución duplica la carga del día. Viola O4.
+- *Overwrite total de la tabla*: idempotente, pero borra el historial de
+  ingestas, que es justamente lo que Bronze tiene que conservar (auditoría y
+  reprocesamiento).
+
+**Consecuencias.** Re-ejecutar el mismo día da el mismo resultado (verificado:
+mismos conteos y un archivo por partición). Quarantine reescribe el día completo
+de la entidad en lugar de partición por regla, porque el overwrite dinámico
+dejaría huérfana una regla que tuvo rechazos en una corrida anterior y no en la
+actual.
+
+**Nota sobre la deduplicación.** El TP1 (§4.3, R8) citó 17/61/9 claves
+duplicadas en tickets, marketing y billing. Esas cifras salieron de
+`approx_count_distinct` antes de D-001; con conteo exacto hay **cero**
+duplicados en las siete fuentes. La deduplicación se mantiene, pero su
+fundamento no es la evidencia del dataset: es la garantía de idempotencia ante
+re-entregas de la misma fuente. Si aparece una clave repetida, se conserva una
+fila de forma determinística y las demás van a quarantine (`clave_duplicada`).
+
+---
+
+## Decisiones abiertas
+
+| # | Tema | Bloquea | Fecha objetivo |
+|---|---|---|---|
+| A-07 | Verificar orden cronológico en los ~20 archivos de eventos | §6, §9 | al recibir el dataset completo |
+| A-08 | Modelo de claves definitivo de las tablas de Cassandra | serving | al implementar |
+| A-09 | Alcance final del componente analítico o de ML | P7 | tras la 2.ª entrega |
