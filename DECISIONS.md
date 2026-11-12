@@ -364,6 +364,48 @@ son un defecto (§8.7). Los eventos con métrica nula llevan USD 2.968 de costo
 
 ---
 
+## D-015 · Gold con dos salidas: capa rápida (streaming) y mart reconciliado (batch)
+
+**Fecha**: 2026-11-12 · **Estado**: aceptada · **Ámbito**: Gold · **Implementa**: D-004, D-008
+
+**Decisión.** `org_daily_usage_by_service` se calcula por dos rutas con la misma
+lista de agregaciones (`src/transform/gold.py::daily_usage_aggs`):
+
+- **Flujo C (streaming)**: Bronze como stream, un archivo por micro-lote,
+  `withWatermark("event_ts", "7 days")`, ventana diaria, `outputMode("update")`,
+  `foreachBatch` a `gold/org_daily_usage_by_service_speed` particionado por
+  `batch_id`. Reintentar un lote reescribe su partición: no duplica. El valor
+  vigente por clave es el del último `batch_id`.
+- **Flujo D (reconciliación)**: Silver completo → mart oficial en
+  `gold/org_daily_usage_by_service`, por `usage_date`, con `last_reconciled_at`.
+
+**Resultado con el dataset completo.**
+- Reconciliado: 11,050 filas, 80 orgs, 60 días, USD 147,433.98; cuadra con Silver.
+- Streaming: 120 micro-lotes; **36,808 eventos
+  tardíos (85.2%)** quedan fuera de la capa rápida, que cubre el
+  15.1% del costo. Latencia por micro-lote: mediana
+  969 ms, máximo 6946 ms (O1: ≤ 5 min).
+- Con un solo micro-lote las dos rutas dan exactamente el mismo mart (test): no
+  divergen (riesgo G-04).
+
+**Medición de tardíos.** Se calcula como eventos en Bronze − eventos incorporados a
+la capa rápida (suma de `event_count` en la vista vigente). La métrica
+`numRowsDroppedByWatermark` de Spark no sirve: los tardíos se filtran antes del
+operador de estado y los subcuenta.
+
+**Comportamiento de Spark 4 a declarar.** El filtro de tardíos usa el watermark
+del lote anterior (Spark separa el watermark de tardíos del de desalojo de
+estado para soportar varios operadores con estado). Los descartes empiezan en el
+tercer micro-lote; por eso el 85.2% medido es algo menor que el 87,6% simulado en D-012.
+
+**Alternativa descartada.** Que el streaming escriba directo sobre el mart
+reconciliado: en Parquet no hay upsert, y sobrescribir una partición con el
+parcial del streaming haría retroceder un valor ya consolidado. La fusión de las
+dos rutas se hace en el serving: Cassandra hace upsert por clave primaria, el
+streaming escribe primero y la reconciliación corrige después.
+
+---
+
 ## Decisiones abiertas
 
 | # | Tema | Bloquea | Fecha objetivo |

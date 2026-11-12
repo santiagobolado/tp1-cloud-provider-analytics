@@ -1,0 +1,18 @@
+{
+  "job": "gold_job",
+  "mart": "org_daily_usage_by_service",
+  "last_reconciled_at": "2026-11-12T04:05:41Z",
+  "filas": 11050,
+  "grano_unico": true,
+  "orgs": 80,
+  "dias": 60,
+  "servicios": 6,
+  "eventos_agregados": 43200,
+  "costo_total_usd": 147433.98,
+  "costo_total_silver_usd": 147433.98,
+  "filas_con_carbon_kg_nulo": 2790,
+  "filas_con_genai_tokens": 848,
+  "archivos_parquet": 60,
+  "bytes": 854145,
+  "segundos": 18.1
+}

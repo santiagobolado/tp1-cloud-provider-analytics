@@ -89,8 +89,11 @@ def conform_resources(res_bronze: DataFrame) -> DataFrame:
 # Eventos
 # ---------------------------------------------------------------------------
 
-def conform_events(ev_bronze: DataFrame, orgs: DataFrame) -> DataFrame:
-    """Eventos de Bronze -> Silver. Devuelve todas las filas con sus flags."""
+def conform_events(ev_bronze: DataFrame, orgs: DataFrame, dedupe: bool = True) -> DataFrame:
+    """Eventos de Bronze -> Silver. Devuelve todas las filas con sus flags.
+
+    La usan el job batch (Silver completo) y la ruta streaming del mart Gold.
+    """
     metric = _norm("metric")
     value_num = F.col("value").try_cast("double")             # D-003: fallback controlado
     unit_in = _norm("unit")
@@ -126,8 +129,13 @@ def conform_events(ev_bronze: DataFrame, orgs: DataFrame) -> DataFrame:
         ev = ev.withColumn(m, F.when(F.col("metric") == m, F.col("value_num")).otherwise(F.lit(0.0)))
 
     # Dedupe sobre la tabla completa: cubre re-entregas que Bronze no vio (D-013).
-    w = Window.partitionBy("event_id").orderBy("ingest_ts", "source_file")
-    ev = ev.withColumn("_rn", F.row_number().over(w))
+    # Las funciones de ventana no existen en streaming; esa ruta ya viene
+    # deduplicada desde Bronze y pasa dedupe=False.
+    if dedupe:
+        w = Window.partitionBy("event_id").orderBy("ingest_ts", "source_file")
+        ev = ev.withColumn("_rn", F.row_number().over(w))
+    else:
+        ev = ev.withColumn("_rn", F.lit(1))
 
     dim = orgs.select("org_id", "org_name", "industry", "plan_tier", "is_enterprise",
                       F.col("hq_region").alias("org_hq_region"), F.lit(True).alias("_has_org"))

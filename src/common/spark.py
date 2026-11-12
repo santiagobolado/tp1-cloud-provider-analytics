@@ -1,5 +1,7 @@
 """Construcción de la SparkSession compartida por todos los jobs."""
 
+import logging
+
 from pyspark.sql import SparkSession
 
 
@@ -19,4 +21,6 @@ def get_spark(app_name: str, master: str = "local[*]") -> SparkSession:
         .getOrCreate()
     )
     spark.sparkContext.setLogLevel("ERROR")
+    # foreachBatch levanta el callback server de Py4J, que loguea cada mensaje en INFO.
+    logging.getLogger("py4j").setLevel(logging.WARNING)
     return spark
