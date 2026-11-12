@@ -1,0 +1,26 @@
+{
+  "job": "gold_stream",
+  "watermark": "event_ts, 7 days",
+  "ejecutado": "2026-11-12T04:08:15+00:00",
+  "esta_corrida": {
+    "micro_lotes": 120,
+    "eventos_leidos": 43200,
+    "descartados_por_watermark": 36266,
+    "pct_descartado": 83.9,
+    "latencia_por_lote_ms": {
+      "max": 6616,
+      "mediana": 977
+    },
+    "watermark_final": "2025-08-24T23:58:00.000Z"
+  },
+  "capa_rapida": {
+    "claves": 2064,
+    "costo_usd": 22219.02,
+    "rango_usage_date": [
+      "2025-07-03",
+      "2025-08-31"
+    ],
+    "cobertura_vs_reconciliado_pct": 15.1
+  },
+  "segundos": 135.7
+}

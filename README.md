@@ -94,6 +94,18 @@ Recomputa Silver completo desde Bronze (idempotente):
 - `data/quarantine/silver_usage_events/regla=.../` — copias de auditoría de los
   eventos marcados (`value_nulo`, `unit_nulo_con_value`, ...)
 
+### 4. Silver → Gold `org_daily_usage_by_service`
+
+```bash
+python -m src.transform.gold_stream   # flujo C: capa rápida con watermark de 7 días
+python -m src.transform.gold_job      # flujo D: reconciliación, mart oficial
+```
+
+- `data/gold/org_daily_usage_by_service/usage_date=.../` — mart reconciliado, grano
+  (org_id, usage_date, service), con `last_reconciled_at`
+- `data/gold/org_daily_usage_by_service_speed/batch_id=.../` — salida del streaming
+  (valor provisorio; los eventos tardíos quedan fuera y se cuentan en el log)
+
 ### Pruebas
 
 ```bash
