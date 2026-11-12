@@ -27,10 +27,14 @@ def _cfg(tmp, landing, ingest_date="2026-11-12"):
 
 
 def _hash_dir(path):
+    """Huella de todo Landing, subcarpetas incluidas (usage_events_stream/)."""
     h = hashlib.sha256()
-    for name in sorted(os.listdir(path)):
-        with open(os.path.join(path, name), "rb") as fh:
-            h.update(name.encode() + fh.read())
+    for base, dirs, names in sorted(os.walk(path)):
+        dirs.sort()
+        for name in sorted(names):
+            full = os.path.join(base, name)
+            with open(full, "rb") as fh:
+                h.update(os.path.relpath(full, path).encode() + fh.read())
     return h.hexdigest()
 
 
