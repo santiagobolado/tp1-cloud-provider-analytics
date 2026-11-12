@@ -13,6 +13,9 @@ def get_spark(app_name: str, master: str = "local[*]") -> SparkSession:
         # Overwrite dinámico: reescribe solo las particiones que la corrida toca
         # y deja intactas las de otros días (D-011).
         .config("spark.sql.sources.partitionOverwriteMode", "dynamic")
+        # Conservar el progreso de todos los micro-lotes (120 archivos) para la
+        # evidencia; el default de 100 trunca el resumen de la corrida.
+        .config("spark.sql.streaming.numRecentProgressUpdates", "1000")
         .getOrCreate()
     )
     spark.sparkContext.setLogLevel("ERROR")

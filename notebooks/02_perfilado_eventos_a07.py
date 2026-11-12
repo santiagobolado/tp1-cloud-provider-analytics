@@ -39,7 +39,7 @@ WATERMARKS_DAYS = [1, 2, 7, 14, 30, 60]
 spark = get_spark("a07-orden-eventos")
 ev = (spark.read.schema(EVENT_SCHEMA).json(f"{LANDING}/usage_events_stream/")
       .withColumn("file", F.regexp_extract(F.col("_metadata.file_name"), r"(\d{4})", 1).cast("int"))
-      .withColumn("ts", F.to_timestamp("timestamp"))
+      .withColumn("ts", F.try_to_timestamp(F.col("timestamp")))
       .cache())
 
 out, m = [], {}

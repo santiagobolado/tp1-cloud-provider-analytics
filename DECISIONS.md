@@ -299,6 +299,44 @@ documento de la 2.ª entrega.
 
 ---
 
+## D-013 · Dos watermarks: dedupe en Bronze sobre `ingest_ts`, agregación sobre `event_ts`
+
+**Fecha**: 2026-11-11 · **Estado**: aceptada · **Ámbito**: streaming · **Precisa**: D-008
+
+**Contexto.** La deduplicación con watermark de Structured Streaming descarta, sin
+dejar rastro, todo evento cuyo tiempo quede por detrás del watermark. Con el
+watermark de D-008 (7 días sobre `event_ts`) eso es el 87,6% del dataset (D-012).
+Aplicado al escribir Bronze, la reconciliación de D-004 se quedaría sin insumo.
+
+**Decisión.** Dos watermarks, cada uno en la operación donde tiene sentido:
+- **Bronze**: `withWatermark("ingest_ts", "7 days").dropDuplicatesWithinWatermark(["event_id"])`.
+  `ingest_ts` es la hora del micro-lote y siempre avanza, así que ningún evento
+  queda detrás del watermark: Bronze conserva el 100% y descarta solo las
+  re-entregas del mismo `event_id` dentro de 7 días de llegada.
+- **Agregación del mart** (`org_daily_usage_by_service` en streaming): 7 días sobre
+  `event_ts`, como fija D-008. Los tardíos quedan fuera del valor fresco, se
+  cuentan (`numRowsDroppedByWatermark`) y los recupera la reconciliación desde Bronze.
+
+**Alternativas descartadas.**
+- *Watermark de 7 días sobre `event_ts` en Bronze*: pierde el 87,6% de los eventos.
+- *Watermark de 60 días sobre `event_ts`*: no pierde nada en la muestra, pero
+  contradice el dimensionamiento de D-008 (más de 200 millones de claves en estado
+  en el escenario mediano).
+
+**Verificado.** 120 micro-lotes de 360 eventos, 43.200 filas en Bronze, 0
+descartadas por watermark. Re-entregar un archivo con otro nombre: se lee y no
+se escribe. Re-ejecutar sin archivos nuevos: 0 filas procesadas.
+
+**Límite reconocido.** Una re-entrega que llegue más de 7 días después de la
+original no se deduplica en Bronze. Silver deduplica por `event_id` sobre la
+tabla completa, lo que cubre ese caso.
+
+**Hallazgo de la prueba.** En Spark 4 (modo ANSI) `to_timestamp` sobre un valor
+inválido lanza una excepción y detiene la consulta. Se usa `try_to_timestamp`, que
+devuelve nulo, y la regla `timestamp_invalido` envía el evento a quarantine.
+
+---
+
 ## Decisiones abiertas
 
 | # | Tema | Bloquea | Fecha objetivo |
