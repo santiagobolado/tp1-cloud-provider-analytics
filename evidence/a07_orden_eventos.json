@@ -1,0 +1,914 @@
+{
+  "total_eventos": 43200,
+  "archivos": 120,
+  "span_por_archivo": {
+    "min": 59.0,
+    "max": 60.0,
+    "promedio": 59.7
+  },
+  "correlacion_indice_archivo_vs_mediana_ts": -0.0152,
+  "ventana_global": [
+    "2025-07-03 00:02:00",
+    "2025-08-31 23:58:00"
+  ],
+  "simulacion_watermark": [
+    {
+      "watermark_dias": 1,
+      "descartados": 42118,
+      "pct_descartado": 97.5,
+      "pct_procesado": 2.5
+    },
+    {
+      "watermark_dias": 2,
+      "descartados": 41405,
+      "pct_descartado": 95.8,
+      "pct_procesado": 4.2
+    },
+    {
+      "watermark_dias": 7,
+      "descartados": 37831,
+      "pct_descartado": 87.6,
+      "pct_procesado": 12.4
+    },
+    {
+      "watermark_dias": 14,
+      "descartados": 32833,
+      "pct_descartado": 76.0,
+      "pct_procesado": 24.0
+    },
+    {
+      "watermark_dias": 30,
+      "descartados": 21421,
+      "pct_descartado": 49.6,
+      "pct_procesado": 50.4
+    },
+    {
+      "watermark_dias": 60,
+      "descartados": 0,
+      "pct_descartado": 0.0,
+      "pct_procesado": 100.0
+    }
+  ],
+  "event_id_distintos": 43200,
+  "event_id_repetidos": 0,
+  "filas_sobrantes_por_duplicado": 0,
+  "duplicados_entre_archivos": 0,
+  "duplicados_dentro_de_un_archivo": 0,
+  "event_id_nulo": 0,
+  "duplicados_con_contenido_distinto": 0,
+  "calidad": {
+    "value_nulo": 877,
+    "value_no_casteable": 0,
+    "unit_nulo_con_value": 2038,
+    "cost_menor_a_-0.01": 211,
+    "cost_min": -154.4608,
+    "cost_max": 317.4308,
+    "timestamp_no_parseable": 0
+  },
+  "schema_version": {
+    "1": 10800,
+    "2": 32400
+  },
+  "por_archivo": [
+    {
+      "archivo": 0,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:08:00",
+      "ts_max": "2025-08-31 16:32:00",
+      "span_dias": 59.68
+    },
+    {
+      "archivo": 1,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:38:00",
+      "ts_max": "2025-08-31 23:51:00",
+      "span_dias": 59.88
+    },
+    {
+      "archivo": 2,
+      "eventos": 360,
+      "ts_min": "2025-07-03 14:16:00",
+      "ts_max": "2025-08-31 20:47:00",
+      "span_dias": 59.27
+    },
+    {
+      "archivo": 3,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:48:00",
+      "ts_max": "2025-08-31 23:51:00",
+      "span_dias": 59.96
+    },
+    {
+      "archivo": 4,
+      "eventos": 360,
+      "ts_min": "2025-07-03 10:43:00",
+      "ts_max": "2025-08-31 20:40:00",
+      "span_dias": 59.41
+    },
+    {
+      "archivo": 5,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:42:00",
+      "ts_max": "2025-08-31 23:56:00",
+      "span_dias": 59.93
+    },
+    {
+      "archivo": 6,
+      "eventos": 360,
+      "ts_min": "2025-07-03 07:13:00",
+      "ts_max": "2025-08-31 21:21:00",
+      "span_dias": 59.59
+    },
+    {
+      "archivo": 7,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:43:00",
+      "ts_max": "2025-08-31 20:28:00",
+      "span_dias": 59.78
+    },
+    {
+      "archivo": 8,
+      "eventos": 360,
+      "ts_min": "2025-07-03 04:36:00",
+      "ts_max": "2025-08-31 21:34:00",
+      "span_dias": 59.71
+    },
+    {
+      "archivo": 9,
+      "eventos": 360,
+      "ts_min": "2025-07-03 07:09:00",
+      "ts_max": "2025-08-31 19:00:00",
+      "span_dias": 59.49
+    },
+    {
+      "archivo": 10,
+      "eventos": 360,
+      "ts_min": "2025-07-03 11:35:00",
+      "ts_max": "2025-08-31 17:43:00",
+      "span_dias": 59.26
+    },
+    {
+      "archivo": 11,
+      "eventos": 360,
+      "ts_min": "2025-07-03 03:56:00",
+      "ts_max": "2025-08-31 15:58:00",
+      "span_dias": 59.5
+    },
+    {
+      "archivo": 12,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:06:00",
+      "ts_max": "2025-08-31 23:00:00",
+      "span_dias": 59.91
+    },
+    {
+      "archivo": 13,
+      "eventos": 360,
+      "ts_min": "2025-07-03 05:52:00",
+      "ts_max": "2025-08-31 21:59:00",
+      "span_dias": 59.67
+    },
+    {
+      "archivo": 14,
+      "eventos": 360,
+      "ts_min": "2025-07-03 08:13:00",
+      "ts_max": "2025-08-31 23:48:00",
+      "span_dias": 59.65
+    },
+    {
+      "archivo": 15,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:02:00",
+      "ts_max": "2025-08-31 22:08:00",
+      "span_dias": 59.92
+    },
+    {
+      "archivo": 16,
+      "eventos": 360,
+      "ts_min": "2025-07-03 07:57:00",
+      "ts_max": "2025-08-31 23:22:00",
+      "span_dias": 59.64
+    },
+    {
+      "archivo": 17,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:11:00",
+      "ts_max": "2025-08-31 22:05:00",
+      "span_dias": 59.91
+    },
+    {
+      "archivo": 18,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:49:00",
+      "ts_max": "2025-08-31 23:51:00",
+      "span_dias": 59.88
+    },
+    {
+      "archivo": 19,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:31:00",
+      "ts_max": "2025-08-31 23:35:00",
+      "span_dias": 59.92
+    },
+    {
+      "archivo": 20,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:08:00",
+      "ts_max": "2025-08-31 23:26:00",
+      "span_dias": 59.93
+    },
+    {
+      "archivo": 21,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:36:00",
+      "ts_max": "2025-08-31 23:35:00",
+      "span_dias": 59.96
+    },
+    {
+      "archivo": 22,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:29:00",
+      "ts_max": "2025-08-31 17:32:00",
+      "span_dias": 59.71
+    },
+    {
+      "archivo": 23,
+      "eventos": 360,
+      "ts_min": "2025-07-03 06:40:00",
+      "ts_max": "2025-08-31 21:54:00",
+      "span_dias": 59.63
+    },
+    {
+      "archivo": 24,
+      "eventos": 360,
+      "ts_min": "2025-07-03 13:26:00",
+      "ts_max": "2025-08-31 21:27:00",
+      "span_dias": 59.33
+    },
+    {
+      "archivo": 25,
+      "eventos": 360,
+      "ts_min": "2025-07-03 03:56:00",
+      "ts_max": "2025-08-31 23:15:00",
+      "span_dias": 59.8
+    },
+    {
+      "archivo": 26,
+      "eventos": 360,
+      "ts_min": "2025-07-03 03:02:00",
+      "ts_max": "2025-08-31 22:01:00",
+      "span_dias": 59.79
+    },
+    {
+      "archivo": 27,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:15:00",
+      "ts_max": "2025-08-31 12:38:00",
+      "span_dias": 59.47
+    },
+    {
+      "archivo": 28,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:52:00",
+      "ts_max": "2025-08-31 21:00:00",
+      "span_dias": 59.84
+    },
+    {
+      "archivo": 29,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:51:00",
+      "ts_max": "2025-08-31 23:20:00",
+      "span_dias": 59.85
+    },
+    {
+      "archivo": 30,
+      "eventos": 360,
+      "ts_min": "2025-07-03 04:38:00",
+      "ts_max": "2025-08-31 21:27:00",
+      "span_dias": 59.7
+    },
+    {
+      "archivo": 31,
+      "eventos": 360,
+      "ts_min": "2025-07-03 03:06:00",
+      "ts_max": "2025-08-31 19:10:00",
+      "span_dias": 59.67
+    },
+    {
+      "archivo": 32,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:18:00",
+      "ts_max": "2025-08-31 23:44:00",
+      "span_dias": 59.89
+    },
+    {
+      "archivo": 33,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:35:00",
+      "ts_max": "2025-08-31 19:17:00",
+      "span_dias": 59.78
+    },
+    {
+      "archivo": 34,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:29:00",
+      "ts_max": "2025-08-31 19:01:00",
+      "span_dias": 59.73
+    },
+    {
+      "archivo": 35,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:47:00",
+      "ts_max": "2025-08-31 20:07:00",
+      "span_dias": 59.72
+    },
+    {
+      "archivo": 36,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:48:00",
+      "ts_max": "2025-08-31 23:33:00",
+      "span_dias": 59.95
+    },
+    {
+      "archivo": 37,
+      "eventos": 360,
+      "ts_min": "2025-07-03 05:20:00",
+      "ts_max": "2025-08-31 21:26:00",
+      "span_dias": 59.67
+    },
+    {
+      "archivo": 38,
+      "eventos": 360,
+      "ts_min": "2025-07-03 20:31:00",
+      "ts_max": "2025-08-31 20:34:00",
+      "span_dias": 59.0
+    },
+    {
+      "archivo": 39,
+      "eventos": 360,
+      "ts_min": "2025-07-03 08:06:00",
+      "ts_max": "2025-08-31 19:41:00",
+      "span_dias": 59.48
+    },
+    {
+      "archivo": 40,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:57:00",
+      "ts_max": "2025-08-31 21:48:00",
+      "span_dias": 59.83
+    },
+    {
+      "archivo": 41,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:17:00",
+      "ts_max": "2025-08-31 23:46:00",
+      "span_dias": 59.94
+    },
+    {
+      "archivo": 42,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:53:00",
+      "ts_max": "2025-08-31 21:32:00",
+      "span_dias": 59.82
+    },
+    {
+      "archivo": 43,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:20:00",
+      "ts_max": "2025-08-31 13:04:00",
+      "span_dias": 59.49
+    },
+    {
+      "archivo": 44,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:36:00",
+      "ts_max": "2025-08-31 22:09:00",
+      "span_dias": 59.86
+    },
+    {
+      "archivo": 45,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:46:00",
+      "ts_max": "2025-08-31 23:01:00",
+      "span_dias": 59.89
+    },
+    {
+      "archivo": 46,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:39:00",
+      "ts_max": "2025-08-31 20:34:00",
+      "span_dias": 59.83
+    },
+    {
+      "archivo": 47,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:25:00",
+      "ts_max": "2025-08-31 21:02:00",
+      "span_dias": 59.82
+    },
+    {
+      "archivo": 48,
+      "eventos": 360,
+      "ts_min": "2025-07-03 05:13:00",
+      "ts_max": "2025-08-31 21:12:00",
+      "span_dias": 59.67
+    },
+    {
+      "archivo": 49,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:10:00",
+      "ts_max": "2025-08-31 09:35:00",
+      "span_dias": 59.39
+    },
+    {
+      "archivo": 50,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:06:00",
+      "ts_max": "2025-08-31 23:35:00",
+      "span_dias": 59.98
+    },
+    {
+      "archivo": 51,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:16:00",
+      "ts_max": "2025-08-31 21:58:00",
+      "span_dias": 59.82
+    },
+    {
+      "archivo": 52,
+      "eventos": 360,
+      "ts_min": "2025-07-03 04:13:00",
+      "ts_max": "2025-08-31 16:02:00",
+      "span_dias": 59.49
+    },
+    {
+      "archivo": 53,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:09:00",
+      "ts_max": "2025-08-31 21:31:00",
+      "span_dias": 59.85
+    },
+    {
+      "archivo": 54,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:09:00",
+      "ts_max": "2025-08-31 21:14:00",
+      "span_dias": 59.84
+    },
+    {
+      "archivo": 55,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:12:00",
+      "ts_max": "2025-08-31 22:45:00",
+      "span_dias": 59.86
+    },
+    {
+      "archivo": 56,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:28:00",
+      "ts_max": "2025-08-31 23:18:00",
+      "span_dias": 59.87
+    },
+    {
+      "archivo": 57,
+      "eventos": 360,
+      "ts_min": "2025-07-03 05:02:00",
+      "ts_max": "2025-08-31 21:54:00",
+      "span_dias": 59.7
+    },
+    {
+      "archivo": 58,
+      "eventos": 360,
+      "ts_min": "2025-07-03 11:18:00",
+      "ts_max": "2025-08-31 23:37:00",
+      "span_dias": 59.51
+    },
+    {
+      "archivo": 59,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:24:00",
+      "ts_max": "2025-08-31 21:42:00",
+      "span_dias": 59.85
+    },
+    {
+      "archivo": 60,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:37:00",
+      "ts_max": "2025-08-31 14:34:00",
+      "span_dias": 59.5
+    },
+    {
+      "archivo": 61,
+      "eventos": 360,
+      "ts_min": "2025-07-03 16:31:00",
+      "ts_max": "2025-08-31 20:20:00",
+      "span_dias": 59.16
+    },
+    {
+      "archivo": 62,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:05:00",
+      "ts_max": "2025-08-31 21:21:00",
+      "span_dias": 59.89
+    },
+    {
+      "archivo": 63,
+      "eventos": 360,
+      "ts_min": "2025-07-03 05:09:00",
+      "ts_max": "2025-08-31 18:30:00",
+      "span_dias": 59.56
+    },
+    {
+      "archivo": 64,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:22:00",
+      "ts_max": "2025-08-31 22:54:00",
+      "span_dias": 59.94
+    },
+    {
+      "archivo": 65,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:50:00",
+      "ts_max": "2025-08-31 22:53:00",
+      "span_dias": 59.92
+    },
+    {
+      "archivo": 66,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:35:00",
+      "ts_max": "2025-08-31 21:53:00",
+      "span_dias": 59.89
+    },
+    {
+      "archivo": 67,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:56:00",
+      "ts_max": "2025-08-31 21:40:00",
+      "span_dias": 59.82
+    },
+    {
+      "archivo": 68,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:03:00",
+      "ts_max": "2025-08-31 20:36:00",
+      "span_dias": 59.81
+    },
+    {
+      "archivo": 69,
+      "eventos": 360,
+      "ts_min": "2025-07-03 05:30:00",
+      "ts_max": "2025-08-31 23:30:00",
+      "span_dias": 59.75
+    },
+    {
+      "archivo": 70,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:43:00",
+      "ts_max": "2025-08-31 23:35:00",
+      "span_dias": 59.87
+    },
+    {
+      "archivo": 71,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:59:00",
+      "ts_max": "2025-08-31 23:44:00",
+      "span_dias": 59.95
+    },
+    {
+      "archivo": 72,
+      "eventos": 360,
+      "ts_min": "2025-07-03 04:07:00",
+      "ts_max": "2025-08-31 22:04:00",
+      "span_dias": 59.75
+    },
+    {
+      "archivo": 73,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:22:00",
+      "ts_max": "2025-08-31 20:40:00",
+      "span_dias": 59.8
+    },
+    {
+      "archivo": 74,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:23:00",
+      "ts_max": "2025-08-31 22:27:00",
+      "span_dias": 59.88
+    },
+    {
+      "archivo": 75,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:48:00",
+      "ts_max": "2025-08-31 23:15:00",
+      "span_dias": 59.94
+    },
+    {
+      "archivo": 76,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:17:00",
+      "ts_max": "2025-08-31 13:25:00",
+      "span_dias": 59.55
+    },
+    {
+      "archivo": 77,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:00:00",
+      "ts_max": "2025-08-31 21:34:00",
+      "span_dias": 59.82
+    },
+    {
+      "archivo": 78,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:09:00",
+      "ts_max": "2025-08-31 19:50:00",
+      "span_dias": 59.78
+    },
+    {
+      "archivo": 79,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:40:00",
+      "ts_max": "2025-08-31 20:44:00",
+      "span_dias": 59.79
+    },
+    {
+      "archivo": 80,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:42:00",
+      "ts_max": "2025-08-31 15:58:00",
+      "span_dias": 59.55
+    },
+    {
+      "archivo": 81,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:33:00",
+      "ts_max": "2025-08-31 17:46:00",
+      "span_dias": 59.72
+    },
+    {
+      "archivo": 82,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:34:00",
+      "ts_max": "2025-08-31 15:18:00",
+      "span_dias": 59.61
+    },
+    {
+      "archivo": 83,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:31:00",
+      "ts_max": "2025-08-31 19:45:00",
+      "span_dias": 59.76
+    },
+    {
+      "archivo": 84,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:59:00",
+      "ts_max": "2025-08-31 22:22:00",
+      "span_dias": 59.85
+    },
+    {
+      "archivo": 85,
+      "eventos": 360,
+      "ts_min": "2025-07-03 19:42:00",
+      "ts_max": "2025-08-31 22:55:00",
+      "span_dias": 59.13
+    },
+    {
+      "archivo": 86,
+      "eventos": 360,
+      "ts_min": "2025-07-03 03:48:00",
+      "ts_max": "2025-08-31 19:08:00",
+      "span_dias": 59.64
+    },
+    {
+      "archivo": 87,
+      "eventos": 360,
+      "ts_min": "2025-07-03 05:47:00",
+      "ts_max": "2025-08-31 14:20:00",
+      "span_dias": 59.36
+    },
+    {
+      "archivo": 88,
+      "eventos": 360,
+      "ts_min": "2025-07-03 06:40:00",
+      "ts_max": "2025-08-31 23:07:00",
+      "span_dias": 59.69
+    },
+    {
+      "archivo": 89,
+      "eventos": 360,
+      "ts_min": "2025-07-03 09:47:00",
+      "ts_max": "2025-08-31 23:42:00",
+      "span_dias": 59.58
+    },
+    {
+      "archivo": 90,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:13:00",
+      "ts_max": "2025-08-31 10:28:00",
+      "span_dias": 59.34
+    },
+    {
+      "archivo": 91,
+      "eventos": 360,
+      "ts_min": "2025-07-03 12:02:00",
+      "ts_max": "2025-08-31 23:47:00",
+      "span_dias": 59.49
+    },
+    {
+      "archivo": 92,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:43:00",
+      "ts_max": "2025-08-31 22:14:00",
+      "span_dias": 59.81
+    },
+    {
+      "archivo": 93,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:34:00",
+      "ts_max": "2025-08-31 22:58:00",
+      "span_dias": 59.85
+    },
+    {
+      "archivo": 94,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:19:00",
+      "ts_max": "2025-08-31 22:02:00",
+      "span_dias": 59.86
+    },
+    {
+      "archivo": 95,
+      "eventos": 360,
+      "ts_min": "2025-07-03 12:15:00",
+      "ts_max": "2025-08-31 11:38:00",
+      "span_dias": 58.97
+    },
+    {
+      "archivo": 96,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:00:00",
+      "ts_max": "2025-08-31 15:20:00",
+      "span_dias": 59.6
+    },
+    {
+      "archivo": 97,
+      "eventos": 360,
+      "ts_min": "2025-07-03 04:58:00",
+      "ts_max": "2025-08-31 17:09:00",
+      "span_dias": 59.51
+    },
+    {
+      "archivo": 98,
+      "eventos": 360,
+      "ts_min": "2025-07-03 07:23:00",
+      "ts_max": "2025-08-31 23:50:00",
+      "span_dias": 59.69
+    },
+    {
+      "archivo": 99,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:17:00",
+      "ts_max": "2025-08-31 23:41:00",
+      "span_dias": 59.98
+    },
+    {
+      "archivo": 100,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:29:00",
+      "ts_max": "2025-08-31 22:45:00",
+      "span_dias": 59.84
+    },
+    {
+      "archivo": 101,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:45:00",
+      "ts_max": "2025-08-31 21:38:00",
+      "span_dias": 59.87
+    },
+    {
+      "archivo": 102,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:11:00",
+      "ts_max": "2025-08-31 21:29:00",
+      "span_dias": 59.89
+    },
+    {
+      "archivo": 103,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:57:00",
+      "ts_max": "2025-08-31 09:45:00",
+      "span_dias": 59.28
+    },
+    {
+      "archivo": 104,
+      "eventos": 360,
+      "ts_min": "2025-07-03 05:32:00",
+      "ts_max": "2025-08-31 15:15:00",
+      "span_dias": 59.4
+    },
+    {
+      "archivo": 105,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:33:00",
+      "ts_max": "2025-08-31 23:58:00",
+      "span_dias": 59.98
+    },
+    {
+      "archivo": 106,
+      "eventos": 360,
+      "ts_min": "2025-07-03 11:34:00",
+      "ts_max": "2025-08-31 21:23:00",
+      "span_dias": 59.41
+    },
+    {
+      "archivo": 107,
+      "eventos": 360,
+      "ts_min": "2025-07-03 03:22:00",
+      "ts_max": "2025-08-31 10:33:00",
+      "span_dias": 59.3
+    },
+    {
+      "archivo": 108,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:11:00",
+      "ts_max": "2025-08-31 22:51:00",
+      "span_dias": 59.94
+    },
+    {
+      "archivo": 109,
+      "eventos": 360,
+      "ts_min": "2025-07-03 03:36:00",
+      "ts_max": "2025-08-31 23:36:00",
+      "span_dias": 59.83
+    },
+    {
+      "archivo": 110,
+      "eventos": 360,
+      "ts_min": "2025-07-03 07:30:00",
+      "ts_max": "2025-08-31 23:19:00",
+      "span_dias": 59.66
+    },
+    {
+      "archivo": 111,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:43:00",
+      "ts_max": "2025-08-31 21:53:00",
+      "span_dias": 59.88
+    },
+    {
+      "archivo": 112,
+      "eventos": 360,
+      "ts_min": "2025-07-03 14:36:00",
+      "ts_max": "2025-08-31 15:36:00",
+      "span_dias": 59.04
+    },
+    {
+      "archivo": 113,
+      "eventos": 360,
+      "ts_min": "2025-07-03 08:00:00",
+      "ts_max": "2025-08-31 18:23:00",
+      "span_dias": 59.43
+    },
+    {
+      "archivo": 114,
+      "eventos": 360,
+      "ts_min": "2025-07-03 10:27:00",
+      "ts_max": "2025-08-31 16:06:00",
+      "span_dias": 59.24
+    },
+    {
+      "archivo": 115,
+      "eventos": 360,
+      "ts_min": "2025-07-03 05:07:00",
+      "ts_max": "2025-08-31 21:04:00",
+      "span_dias": 59.66
+    },
+    {
+      "archivo": 116,
+      "eventos": 360,
+      "ts_min": "2025-07-03 03:56:00",
+      "ts_max": "2025-08-31 21:52:00",
+      "span_dias": 59.75
+    },
+    {
+      "archivo": 117,
+      "eventos": 360,
+      "ts_min": "2025-07-03 01:03:00",
+      "ts_max": "2025-08-31 21:52:00",
+      "span_dias": 59.87
+    },
+    {
+      "archivo": 118,
+      "eventos": 360,
+      "ts_min": "2025-07-03 02:32:00",
+      "ts_max": "2025-08-31 04:48:00",
+      "span_dias": 59.09
+    },
+    {
+      "archivo": 119,
+      "eventos": 360,
+      "ts_min": "2025-07-03 00:26:00",
+      "ts_max": "2025-08-31 17:24:00",
+      "span_dias": 59.71
+    }
+  ]
+}
