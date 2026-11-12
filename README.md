@@ -77,6 +77,23 @@ micro-lote, procesa lo pendiente y termina (`availableNow`). Escribe:
 Re-ejecutar no reprocesa nada. Para simular llegada en vivo:
 `python -m src.ingest.stream_to_bronze --continuous 30` y copiar archivos nuevos a la carpeta.
 
+### 3. Bronze → Silver
+
+```bash
+python -m src.transform.silver_job
+```
+
+Recomputa Silver completo desde Bronze (idempotente):
+
+- `data/silver/usage_events/event_date=.../service=.../` — eventos tipados, v1/v2
+  compatibles, enriquecidos con la organización, con las features `requests`,
+  `cpu_hours`, `storage_gb_hours`, `cost_usd`, `genai_tokens`, `carbon_kg` y la
+  columna `quality_flags`
+- `data/silver/customers_orgs/` — NPS resuelto (última encuesta, si no CRM; D-006)
+- `data/silver/resources/` — `tags_json` convertido a array
+- `data/quarantine/silver_usage_events/regla=.../` — copias de auditoría de los
+  eventos marcados (`value_nulo`, `unit_nulo_con_value`, ...)
+
 ### Pruebas
 
 ```bash

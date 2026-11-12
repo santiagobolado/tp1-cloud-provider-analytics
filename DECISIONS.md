@@ -337,6 +337,33 @@ devuelve nulo, y la regla `timestamp_invalido` envía el evento a quarantine.
 
 ---
 
+## D-014 · El `unit` nulo se imputa desde la métrica; la métrica nula no se imputa
+
+**Fecha**: 2026-11-12 · **Estado**: aceptada · **Ámbito**: Silver, calidad · **Refina**: D-009
+
+**Contexto.** D-009 dejaba la métrica en nulo cuando faltaba `unit`. Con el dataset
+completo son 2.038 eventos (4,7%): se perdería la métrica de todos ellos. El
+perfilado de los 120 archivos muestra que la unidad es función de la métrica,
+sin excepciones en los 41.125 eventos que la traen: `cpu_hours → hours`,
+`requests → count`, `storage_gb_hours → gb_hours`.
+
+**Decisión.** Cuando falta `unit` y hay `value`, se completa con la unidad canónica
+de la métrica, el evento lleva el flag `unit_nulo_con_value` y una copia va a
+quarantine. Es el mismo criterio que D-007: si el dato de negocio es recuperable
+con certeza, se corrige y se deja auditable. Cuando falta `value` (877 eventos),
+no hay nada que recuperar: la métrica queda en nulo y el costo promueve (D-009).
+
+**Alternativa descartada.** Anular la métrica, como decía D-009. Descarta
+información que el propio dataset permite reconstruir sin ambigüedad.
+
+**Consecuencia.** Quarantine de Silver contiene copias de auditoría, no registros
+excluidos: los 877 + 2.038 eventos están en Silver con su flag. Los 211 costos
+negativos se marcan (`is_credit_adjustment`) pero no van a quarantine, porque no
+son un defecto (§8.7). Los eventos con métrica nula llevan USD 2.968 de costo
+(2,0% del total), que gracias a D-009 llegan al mart.
+
+---
+
 ## Decisiones abiertas
 
 | # | Tema | Bloquea | Fecha objetivo |
