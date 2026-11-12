@@ -272,10 +272,36 @@ fila de forma determinística y las demás van a quarantine (`clave_duplicada`).
 
 ---
 
+## D-012 · Los archivos de eventos no tienen orden temporal: se confirma la reconciliación
+
+**Fecha**: 2026-11-11 · **Estado**: aceptada · **Cierra**: A-07 · **Confirma**: D-004, D-008
+
+**Contexto.** D-004 y D-008 se apoyaron en un solo archivo. El dataset completo
+tiene **120 archivos y 43.200 eventos** (el TP1 estimó ~20 archivos y ~7.200).
+
+**Evidencia** (`notebooks/02_perfilado_eventos_a07.py` → `evidence/a07_orden_eventos.md`):
+- Los 120 archivos cubren entre 59 y 60 días cada uno: todos son una muestra de
+  la ventana completa, ninguno es un corte cronológico.
+- Correlación entre número de archivo y mediana de su timestamp: −0,015.
+- Procesando un archivo por micro-lote, un watermark de 7 días descarta el
+  **87,6%** de los eventos; uno de 30 días, el 49,6%; solo 60 días no descarta nada.
+- Cero `event_id` repetidos, dentro o entre archivos.
+
+**Decisión.** Se mantienen D-004 (híbrido con reconciliación) y D-008 (watermark de
+7 días). La premisa que A-07 ponía en duda se verifica sobre el 100% del dataset:
+la ruta streaming no puede producir marts completos y la reconciliación es lo
+único que los hace correctos.
+
+**Consecuencia.** La deduplicación por `event_id` sigue siendo obligatoria
+(consigna §6.2) pero el dataset no la ejercita: se demuestra re-entregando un
+archivo ya procesado. Las cifras de volumen del TP1 (§3.2) se corrigen en el
+documento de la 2.ª entrega.
+
+---
+
 ## Decisiones abiertas
 
 | # | Tema | Bloquea | Fecha objetivo |
 |---|---|---|---|
-| A-07 | Verificar orden cronológico en los ~20 archivos de eventos | §6, §9 | al recibir el dataset completo |
 | A-08 | Modelo de claves definitivo de las tablas de Cassandra | serving | al implementar |
 | A-09 | Alcance final del componente analítico o de ML | P7 | tras la 2.ª entrega |
