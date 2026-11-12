@@ -406,6 +406,42 @@ streaming escribe primero y la reconciliación corrige después.
 
 ---
 
+## D-016 · Implementación de D-010: línea de base sobre la serie completa
+
+**Fecha**: 2026-11-12 · **Estado**: aceptada · **Ámbito**: analítica · **Implementa**: D-010
+
+**Decisión.** `cost_anomaly_mart` (`src/analytics/anomalies.py`) aplica MAD sobre el
+costo diario bruto de cada serie `(org_id, service)` del mart reconciliado, con
+umbral `|score| > 3,5`. La línea de base usa la serie completa, no una ventana
+móvil. Fallback a la estadística del servicio si la serie tiene menos de 20 días
+o MAD = 0; si tampoco hay dispersión ahí, `baseline_source = sin_dispersion` y no
+se marca.
+
+**Por qué serie completa.** Con 60 días el resultado no cambia de forma
+material, y Spark no calcula medianas sobre ventanas móviles sin un self-join. La
+ventana móvil queda en el backlog para producción.
+
+**Resultado.** 262 series, todas con ≥ 24 días de historia (el fallback no se
+activa en este dataset). 130 anomalías en 11,050 celdas (1.18%).
+
+**Validación sin etiquetas.** El dataset inyecta picos (eventos > USD 50 con
+mediana de USD 1). Sobre el mismo mart:
+
+| Método | Celdas marcadas | Picos detectados (de 54) |
+|---|---|---|
+| z-score global, \|z\| > 3 | 93 | 51 |
+| MAD global, \|score\| > 3,5 | 405 | 54 |
+| **MAD por serie (elegido)** | **130** | **54** |
+
+El z-score global pierde picos en servicios baratos; el MAD global los detecta
+pero marca tres veces más celdas, porque confunde "caro" con "anómalo". La línea
+de base por serie es la única que detecta todo con el menor ruido.
+
+**Límite.** Sin etiquetas no hay precisión medible: las 76 celdas marcadas que no
+contienen un pico inyectado pueden ser anomalías reales o falsos positivos.
+
+---
+
 ## Decisiones abiertas
 
 | # | Tema | Bloquea | Fecha objetivo |

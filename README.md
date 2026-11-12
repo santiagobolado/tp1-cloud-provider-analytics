@@ -106,6 +106,16 @@ python -m src.transform.gold_job      # flujo D: reconciliación, mart oficial
 - `data/gold/org_daily_usage_by_service_speed/batch_id=.../` — salida del streaming
   (valor provisorio; los eventos tardíos quedan fuera y se cuentan en el log)
 
+### 5. Anomalías de costo → `cost_anomaly_mart`
+
+```bash
+python -m src.analytics.anomalies
+```
+
+MAD sobre la serie diaria de cada (organización, servicio), |score| > 3,5 (D-010,
+D-016). Escribe `data/gold/cost_anomaly_mart/date=.../` con score, línea de base y
+flag por celda, y en el log la comparación contra z-score y MAD globales.
+
 ### Pruebas
 
 ```bash
