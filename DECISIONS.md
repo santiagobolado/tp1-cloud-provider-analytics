@@ -442,9 +442,43 @@ contienen un pico inyectado pueden ser anomalías reales o falsos positivos.
 
 ---
 
+## D-017 · Modelo de serving: dos tablas query-first y carga con el driver de Python
+
+**Fecha**: 2026-11-12 · **Estado**: aceptada · **Ámbito**: serving · **Cierra**: A-08 · **Revisa**: §8.9 del TP1
+
+**Tablas** (`infra/cql/schema.cql`, keyspace `cloud_analytics`):
+
+| Tabla | Clave | Responde |
+|---|---|---|
+| `org_daily_usage_by_service` | `((org_id), usage_date, service)`, `usage_date DESC` | P1: costo y requests por día y servicio en un rango de fechas |
+| `top_services_by_org_14d` | `((org_id, as_of_date), rank)` | P2: Top-N servicios por costo en los 14 días previos a una fecha |
+
+**Cambios respecto del TP1 (§8.9) y por qué.**
+- P1 pasa de partición `(org_id, usage_date)` a `(org_id)` con `usage_date` como
+  clustering. Con la fecha en la partición, un rango de fechas obliga a una
+  consulta por día o a `IN`; como clustering, el rango es un corte contiguo de una
+  sola partición. Tamaño: 360 filas por organización con este dataset; a escala
+  se agregaría un bucket mensual a la partición.
+- P2 ordena por `rank` y no por `total_cost DESC`. Si el costo fuera parte de la
+  clave, recalcularlo crearía una fila nueva y dejaría la vieja: el upsert no
+  sería idempotente. Con `rank`, la recarga pisa la misma fila.
+- P2 se precalcula en Spark para cada fecha de corte con 14 días completos (47
+  fechas, 12.314 filas): Cassandra no agrega ni ordena por columnas calculadas.
+
+**Carga.** `cassandra-driver` en `foreachPartition` con sentencias preparadas. La
+consigna admite "conector o foreachBatch/driver"; el Spark Cassandra Connector es
+un JAR atado a versiones de Spark y Scala, sin compatibilidad asegurada con Spark
+4.2. Todo INSERT es upsert: re-cargar no duplica. Con `--with-speed` se carga la
+capa rápida y después el reconciliado la pisa (fusión de D-015).
+
+**Entorno.** La carga y las consultas corren en Colab
+(`notebooks/00_pipeline_colab.ipynb`): el entorno de desarrollo no tiene salida a
+AstraDB. Credenciales solo por variables de entorno y Colab Secrets.
+
+---
+
 ## Decisiones abiertas
 
 | # | Tema | Bloquea | Fecha objetivo |
 |---|---|---|---|
-| A-08 | Modelo de claves definitivo de las tablas de Cassandra | serving | al implementar |
 | A-09 | Alcance final del componente analítico o de ML | P7 | tras la 2.ª entrega |

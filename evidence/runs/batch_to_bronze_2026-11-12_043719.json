@@ -2,7 +2,7 @@
   "job": "batch_to_bronze",
   "spark_version": "4.2.0",
   "ingest_date": "2026-11-12",
-  "ingest_ts": "2026-11-11T23:37:37Z",
+  "ingest_ts": "2026-11-12T04:37:19Z",
   "fuentes": [
     {
       "entity": "customers_orgs",
@@ -16,8 +16,8 @@
       "quarantine_por_regla": {},
       "bronze_particion": "data/bronze/customers_orgs/ingest_date=2026-11-12",
       "archivos_parquet": 1,
-      "bytes": 6877,
-      "segundos": 7.27
+      "bytes": 6876,
+      "segundos": 6.64
     },
     {
       "entity": "users",
@@ -31,8 +31,8 @@
       "quarantine_por_regla": {},
       "bronze_particion": "data/bronze/users/ingest_date=2026-11-12",
       "archivos_parquet": 1,
-      "bytes": 23789,
-      "segundos": 2.03
+      "bytes": 23788,
+      "segundos": 1.88
     },
     {
       "entity": "resources",
@@ -46,7 +46,7 @@
       "quarantine_por_regla": {},
       "bronze_particion": "data/bronze/resources/ingest_date=2026-11-12",
       "archivos_parquet": 1,
-      "bytes": 11865,
+      "bytes": 11864,
       "segundos": 1.58
     },
     {
@@ -61,8 +61,8 @@
       "quarantine_por_regla": {},
       "bronze_particion": "data/bronze/support_tickets/ingest_date=2026-11-12",
       "archivos_parquet": 1,
-      "bytes": 19011,
-      "segundos": 1.69
+      "bytes": 19010,
+      "segundos": 1.52
     },
     {
       "entity": "marketing_touches",
@@ -76,8 +76,8 @@
       "quarantine_por_regla": {},
       "bronze_particion": "data/bronze/marketing_touches/ingest_date=2026-11-12",
       "archivos_parquet": 1,
-      "bytes": 23129,
-      "segundos": 1.25
+      "bytes": 23128,
+      "segundos": 1.32
     },
     {
       "entity": "nps_surveys",
@@ -92,8 +92,8 @@
       "quarantine_por_regla": {},
       "bronze_particion": "data/bronze/nps_surveys/ingest_date=2026-11-12",
       "archivos_parquet": 1,
-      "bytes": 3769,
-      "segundos": 1.29
+      "bytes": 3768,
+      "segundos": 0.89
     },
     {
       "entity": "billing_monthly",
@@ -107,8 +107,8 @@
       "quarantine_por_regla": {},
       "bronze_particion": "data/bronze/billing_monthly/ingest_date=2026-11-12",
       "archivos_parquet": 1,
-      "bytes": 12046,
-      "segundos": 1.18
+      "bytes": 12045,
+      "segundos": 1.08
     }
   ]
 }

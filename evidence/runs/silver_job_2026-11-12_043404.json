@@ -1,0 +1,34 @@
+{
+  "job": "silver_job",
+  "ejecutado": "2026-11-12T04:33:58+00:00",
+  "eventos": {
+    "filas_bronze": 43200,
+    "filas_silver": 43200,
+    "duplicados_descartados": 0,
+    "particiones_event_date_x_service": 360,
+    "archivos_parquet": 360,
+    "filas_con_algun_flag": 3117,
+    "flags": {
+      "costo_negativo": 211,
+      "unit_nulo_con_value": 2038,
+      "value_nulo": 877
+    },
+    "costo_total_usd": 147433.98,
+    "costo_de_eventos_con_metrica_nula_usd": 2968.03,
+    "v1_con_carbon_kg": 0
+  },
+  "quarantine_silver_por_regla": {
+    "unit_nulo_con_value": 2038,
+    "value_nulo": 877
+  },
+  "maestros": {
+    "customers_orgs": 80,
+    "orgs_por_nps_source": {
+      "None": 3,
+      "crm": 25,
+      "survey": 52
+    },
+    "resources": 400
+  },
+  "segundos": 30.3
+}

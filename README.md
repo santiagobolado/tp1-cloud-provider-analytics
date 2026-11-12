@@ -116,6 +116,27 @@ MAD sobre la serie diaria de cada (organización, servicio), |score| > 3,5 (D-01
 D-016). Escribe `data/gold/cost_anomaly_mart/date=.../` con score, línea de base y
 flag por celda, y en el log la comparación contra z-score y MAD globales.
 
+### 6. Serving en AstraDB
+
+Requiere una base en AstraDB con el keyspace `cloud_analytics`, el token y el
+Secure Connect Bundle. Credenciales solo por variables de entorno:
+
+```bash
+export ASTRA_DB_BUNDLE_PATH=/ruta/secure-connect-xxx.zip
+export ASTRA_DB_TOKEN=AstraCS:...
+python -m src.serving.load_cassandra --with-speed   # crea tablas y carga P1 y P2
+python -m src.serving.run_queries                   # Q1 y Q2 -> evidence/serving/
+```
+
+Tablas y consultas en `infra/cql/`. Sin AstraDB: `CASSANDRA_HOST=localhost` contra
+una Cassandra local.
+
+### Todo junto en Colab
+
+`notebooks/00_pipeline_colab.ipynb` instala Java 17, clona el repo y corre los
+pasos 1 a 6 desde cero, incluida la re-ejecución para verificar idempotencia. El
+token se lee de Colab Secrets.
+
 ### Pruebas
 
 ```bash

@@ -2,7 +2,7 @@
   "job": "batch_to_bronze",
   "spark_version": "4.2.0",
   "ingest_date": "2026-11-12",
-  "ingest_ts": "2026-11-11T23:39:32Z",
+  "ingest_ts": "2026-11-12T04:31:21Z",
   "fuentes": [
     {
       "entity": "customers_orgs",
@@ -17,7 +17,7 @@
       "bronze_particion": "data/bronze/customers_orgs/ingest_date=2026-11-12",
       "archivos_parquet": 1,
       "bytes": 6877,
-      "segundos": 7.3
+      "segundos": 6.72
     },
     {
       "entity": "users",
@@ -32,7 +32,7 @@
       "bronze_particion": "data/bronze/users/ingest_date=2026-11-12",
       "archivos_parquet": 1,
       "bytes": 23789,
-      "segundos": 2.06
+      "segundos": 1.75
     },
     {
       "entity": "resources",
@@ -47,7 +47,7 @@
       "bronze_particion": "data/bronze/resources/ingest_date=2026-11-12",
       "archivos_parquet": 1,
       "bytes": 11865,
-      "segundos": 1.5
+      "segundos": 1.41
     },
     {
       "entity": "support_tickets",
@@ -62,7 +62,7 @@
       "bronze_particion": "data/bronze/support_tickets/ingest_date=2026-11-12",
       "archivos_parquet": 1,
       "bytes": 19011,
-      "segundos": 1.35
+      "segundos": 1.46
     },
     {
       "entity": "marketing_touches",
@@ -77,7 +77,7 @@
       "bronze_particion": "data/bronze/marketing_touches/ingest_date=2026-11-12",
       "archivos_parquet": 1,
       "bytes": 23129,
-      "segundos": 1.42
+      "segundos": 1.5
     },
     {
       "entity": "nps_surveys",
@@ -93,7 +93,7 @@
       "bronze_particion": "data/bronze/nps_surveys/ingest_date=2026-11-12",
       "archivos_parquet": 1,
       "bytes": 3769,
-      "segundos": 1.22
+      "segundos": 1.16
     },
     {
       "entity": "billing_monthly",
@@ -108,7 +108,7 @@
       "bronze_particion": "data/bronze/billing_monthly/ingest_date=2026-11-12",
       "archivos_parquet": 1,
       "bytes": 12046,
-      "segundos": 1.01
+      "segundos": 1.16
     }
   ]
 }
