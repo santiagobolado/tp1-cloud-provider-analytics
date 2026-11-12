@@ -1,6 +1,6 @@
 # Checklist — 2.ª entrega (16/11/2026, 18:30)
 
-Estado al 12/11, 01:35. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
+Estado al 12/11, 01:50. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
 
 ## Contra el checklist 9.2 de la consigna
 
@@ -17,10 +17,10 @@ Estado al 12/11, 01:35. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloque
 | 9 | Keyspace y tabla Cassandra/AstraDB poblada | ⛔ | **Falta crear la base en AstraDB** (paso 6) |
 | 10 | Dos consultas CQL con resultados | ⛔ | Depende del 9 |
 | 11 | Idempotencia demostrada | 🟡 | Batch, streaming, Silver y Gold probados con tests y doble corrida. Falta serving (paso 8) |
-| 12 | README Quickstart, logs y evidencias | 🟡 | Quickstart de los pasos 1 a 4; logs JSON por corrida; 30 tests |
+| 12 | README Quickstart, logs y evidencias | 🟡 | Quickstart de los pasos 1 a 5; logs JSON por corrida; 36 tests |
 | 13 | Backlog final priorizado | ⬜ | Paso 10 |
 
-Además, de la tabla §6.2: **Analítica o ML** ⬜ (paso 7, MAD de D-010) · **Gobierno preliminar** ⬜ (paso 9).
+Además, de la tabla §6.2: **Analítica o ML** ✅ `cost_anomaly_mart`: 130 anomalías, 54/54 picos inyectados detectados (D-016) · **Gobierno preliminar** ⬜ (paso 9).
 
 ## Contra el plan por pasos
 
@@ -33,7 +33,7 @@ Además, de la tabla §6.2: **Analítica o ML** ⬜ (paso 7, MAD de D-010) · **
 | 4 | Calidad y quarantine | con 1–3 | ✅ |
 | 5 | Gold `org_daily_usage_by_service` (streaming + reconciliación) | Vie–Sáb | ✅ (adelantado) |
 | 6 | AstraDB: keyspace, tablas, carga, 2 consultas | Sáb 14 | ⛔ base sin crear |
-| 7 | Anomalías con MAD | Sáb 14 | ⬜ |
+| 7 | Anomalías con MAD | Sáb 14 | ✅ (adelantado) |
 | 8 | Idempotencia end-to-end | Dom 15 | 🟡 |
 | 9 | Gobierno, pruebas, logs | Dom 15 | 🟡 |
 | 10 | Documento (≤12 págs.) + anexos + diagrama v2 + backlog | Dom–Lun | ⬜ |
