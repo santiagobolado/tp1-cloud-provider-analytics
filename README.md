@@ -61,6 +61,22 @@ Lee las 7 fuentes CSV de `data/landing/` con esquema explícito y escribe:
 Es idempotente: re-ejecutar el mismo día reemplaza solo esa partición. Para fijar
 la fecha: `INGEST_DATE=2026-11-12 python -m src.ingest.batch_to_bronze`.
 
+### 2. Streaming de eventos → Bronze
+
+```bash
+python -m src.ingest.stream_to_bronze
+```
+
+Lee `data/landing/usage_events_stream/` con Structured Streaming, un archivo por
+micro-lote, procesa lo pendiente y termina (`availableNow`). Escribe:
+
+- `data/bronze/usage_events/ingest_date=YYYY-MM-DD/` — eventos válidos, deduplicados por `event_id`
+- `data/quarantine/usage_events/ingest_date=.../regla=.../` — JSON roto, `event_id` nulo o timestamp inválido
+- `_checkpoints/stream_to_bronze/` — qué archivos ya se procesaron y el estado de deduplicación
+
+Re-ejecutar no reprocesa nada. Para simular llegada en vivo:
+`python -m src.ingest.stream_to_bronze --continuous 30` y copiar archivos nuevos a la carpeta.
+
 ### Pruebas
 
 ```bash
@@ -73,6 +89,7 @@ Las zonas derivadas se regeneran desde Landing:
 
 ```bash
 rm -rf data/bronze data/silver data/gold data/quarantine _checkpoints
+# Borrar los checkpoints sin borrar las zonas duplicaría eventos al re-ejecutar.
 ```
 
 Configuración: ver `config/.env.example`.

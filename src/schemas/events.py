@@ -23,3 +23,9 @@ EVENT_SCHEMA = T.StructType([
     T.StructField("carbon_kg", T.DoubleType()),      # solo v2
     T.StructField("genai_tokens", T.LongType()),     # solo v2 y service = genai
 ])
+
+CORRUPT_COL = "_corrupt_record"
+
+# Para la ingesta: misma estructura + la línea cruda cuando el JSON no parsea.
+EVENT_SCHEMA_WITH_CORRUPT = T.StructType(
+    EVENT_SCHEMA.fields + [T.StructField(CORRUPT_COL, T.StringType())])

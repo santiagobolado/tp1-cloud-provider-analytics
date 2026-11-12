@@ -16,6 +16,7 @@ class Settings:
     lake: str
     evidence: str
     ingest_date: str          # YYYY-MM-DD; fija la partición de la corrida
+    checkpoints: str = "_checkpoints"   # fuera de las zonas de datos: no es dato (§8.4)
 
     @property
     def bronze(self) -> str:
@@ -24,6 +25,7 @@ class Settings:
     @property
     def quarantine(self) -> str:
         return f"{self.lake}/quarantine"
+
 
 
 def load_settings(**overrides) -> Settings:
@@ -35,6 +37,7 @@ def load_settings(**overrides) -> Settings:
         # Por defecto, la fecha de hoy. Se puede fijar para reprocesar un día
         # puntual o para demostrar idempotencia de forma determinística.
         "ingest_date": os.environ.get("INGEST_DATE", date.today().isoformat()),
+        "checkpoints": os.environ.get("CHECKPOINT_PATH", "_checkpoints"),
     }
     values.update({k: v for k, v in overrides.items() if v is not None})
     date.fromisoformat(values["ingest_date"])  # falla temprano si viene mal

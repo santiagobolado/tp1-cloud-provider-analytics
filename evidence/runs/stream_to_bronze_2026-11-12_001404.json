@@ -1,0 +1,33 @@
+{
+  "job": "stream_to_bronze",
+  "spark_version": "4.2.0",
+  "ejecutado": "2026-11-12T00:14:03+00:00",
+  "watermark_dedupe": "ingest_ts, 7 days",
+  "esta_corrida": {
+    "bronze": {
+      "micro_lotes_con_datos": 120,
+      "filas_entrada": 43200,
+      "filas_por_lote": [
+        360
+      ],
+      "claves_en_estado_al_final": 43200,
+      "descartadas_por_watermark": 0
+    },
+    "quarantine": {
+      "micro_lotes_con_datos": 120,
+      "filas_entrada": 43200,
+      "filas_por_lote": [
+        360
+      ],
+      "claves_en_estado_al_final": 0,
+      "descartadas_por_watermark": 0
+    }
+  },
+  "acumulado": {
+    "filas_bronze": 43200,
+    "event_id_distintos_bronze": 43200,
+    "filas_quarantine": 0,
+    "quarantine_por_regla": {}
+  },
+  "segundos": 95.1
+}
