@@ -1,12 +1,12 @@
 # Checklist — 2.ª entrega (16/11/2026, 18:30)
 
-Estado al 13/11, 17:35. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
+Estado al 13/11, 18:30. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
 
 ## Contra el checklist 9.2 de la consigna
 
 | # | Ítem de la consigna | Estado | Evidencia / qué falta |
 |---|---|---|---|
-| 1 | Correcciones de la 1.ª entrega incorporadas | 🟡 | `docs/plan_correcciones.md`: C-02 a C-05 hechas; faltan C-01 (documento corto) y C-06 (cifras de volumen, van en el documento) |
+| 1 | Correcciones de la 1.ª entrega incorporadas | ✅ | C-01 a C-06 hechas: documento de 9 páginas + anexos A–E separados; cifras del TP1 corregidas (`docs/plan_correcciones.md`) |
 | 2 | Arquitectura actualizada | ✅ | `docs/diagrama_arquitectura_v2`: solo lo implementado, lo pendiente rotulado como tal; tabla de cambios respecto de la v1 |
 | 3 | Tres maestros batch en Bronze | ✅ | Las 7 fuentes. `src/ingest/batch_to_bronze.py`, D-011, `evidence/runs/batch_to_bronze_*` |
 | 4 | Streaming con esquema, watermark, dedupe, late data y checkpoint | ✅ | Bronze (D-013) + agregación con watermark de 7 días: 36.808 tardíos medidos y recuperados por la reconciliación (D-015) |
@@ -36,7 +36,7 @@ Además, de la tabla §6.2: **Analítica o ML** ✅ `cost_anomaly_mart`: 130 ano
 | 7 | Anomalías con MAD | Sáb 14 | ✅ (adelantado) |
 | 8 | Idempotencia end-to-end | Dom 15 | ✅ (adelantado) |
 | 9 | Gobierno, pruebas, logs | Dom 15 | ✅ (adelantado) |
-| 10 | Documento (≤12 págs.) + anexos + diagrama v2 + backlog | Dom–Lun | ⬜ |
+| 10 | Documento (≤12 págs.) + anexos + diagrama v2 + backlog | Dom–Lun | ✅ (adelantado) |
 
 **Ruta crítica:** el documento de 10–12 páginas con anexos (C-01), que responde al
 feedback del profesor. El pipeline está completo y verificado en AstraDB.

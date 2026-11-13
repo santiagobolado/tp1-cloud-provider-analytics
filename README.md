@@ -198,6 +198,8 @@ Rutas configurables por variable de entorno: `LANDING_PATH`, `EVIDENCE_PATH`.
 
 | Archivo | Contenido |
 |---|---|
+| `docs/Entregable2_BigData_Grupo4.pdf` / `.docx` | **Documento de la entrega** (9 páginas) |
+| `docs/Entregable2_Anexos_BigData_Grupo4.pdf` / `.docx` | Anexos A–E: evidencias, quarantine, serving, diccionario y linaje, backlog |
 | `src/`, `tests/`, `infra/cql/` | Pipeline, 47 pruebas y CQL de serving |
 | `notebooks/00_pipeline_colab.ipynb` | Ejecución completa en Colab |
 | `DECISIONS.md` | D-001 a D-017 (D-011 en adelante, de esta entrega) y decisiones abiertas |
