@@ -133,6 +133,12 @@ def test_filas_sucias_van_a_quarantine_con_motivo(spark, landing, tmp_path):
     q = spark.read.parquet(f"{cfg.quarantine}/customers_orgs/ingest_date={cfg.ingest_date}")
     raw = q.filter(F.col("regla") == "no_parseable").first()["raw_record"]
     assert "2025-13-45" in raw                         # se guarda la línea cruda
+    # Se conserva la primera aparición (el original) y se aísla la re-entrega.
+    dup = q.filter(F.col("regla") == "clave_duplicada").first()["record_json"]
+    assert '"org_name":"Duplicada"' in dup
+    kept = (spark.read.parquet(f"{cfg.bronze}/customers_orgs")
+            .filter(F.col("org_id") == "org_xaji0y6d").first()["org_name"])
+    assert kept == "Nimbus Labs 0"
     assert q.filter(F.col("record_json").isNull()).count() == 0
 
     # Re-ejecutar sobre los mismos datos deja la quarantine igual, sin acumular.

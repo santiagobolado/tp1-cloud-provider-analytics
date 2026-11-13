@@ -1,6 +1,6 @@
 # Checklist — 2.ª entrega (16/11/2026, 18:30)
 
-Estado al 13/11, 15:40. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
+Estado al 13/11, 16:30 (después de la auditoría general). ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
 
 ## Contra el checklist 9.2 de la consigna
 
@@ -12,12 +12,12 @@ Estado al 13/11, 15:40. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloque
 | 4 | Streaming con esquema, watermark, dedupe, late data y checkpoint | ✅ | Bronze (D-013) + agregación con watermark de 7 días: 36.808 tardíos medidos y recuperados por la reconciliación (D-015) |
 | 5 | Silver para eventos y al menos un maestro | ✅ | Eventos + `customers_orgs` + `resources`; join con organizaciones. `src/transform/`, D-014 |
 | 6 | Tres features calculadas | ✅ | `requests`, `cpu_hours`, `storage_gb_hours`, `cost_usd`, `genai_tokens`, `carbon_kg` en Silver; `daily_cost_usd` en Gold |
-| 7 | Tres reglas de calidad y quarantine | ✅ | Las 3 de la consigna + 4 más: `event_id` (Bronze), `costo_negativo` 211, `unit_nulo_con_value` 2.038, `value_nulo` 877. Quarantine en Bronze y Silver |
+| 7 | Tres reglas de calidad y quarantine | ✅ | Las 3 de la consigna + 4 más. Muestras por regla en `evidence/quarantine_muestras.md` (Silver real + Bronze con filas sucias inyectadas) |
 | 8 | Mart `org_daily_usage_by_service` en Gold | ✅ | 11.050 filas, grano único, cuadra con Silver. Streaming + reconciliación (D-015) |
 | 9 | Keyspace y tabla Cassandra/AstraDB poblada | ✅ | AstraDB `cloud_analytics` (AWS us-east-2): `org_daily_usage_by_service` 11.050 filas, `top_services_by_org_14d` 12.314 (D-017, `evidence/runs/load_cassandra_*`) |
 | 10 | Dos consultas CQL con resultados | ✅ | Q1: 25 filas en 39 ms; Q2: Top-3 en 38 ms; coinciden con Gold. CQL, salidas y capturas de la CQL Console en `evidence/serving/` |
 | 11 | Idempotencia demostrada | ✅ | Pipeline y carga a AstraDB ejecutados dos veces en Colab: variación 0 en 12 tablas (`evidence/idempotencia.md`) |
-| 12 | README Quickstart, logs y evidencias | ✅ | Notebook de Colab validado desde entorno limpio, mismas cifras que el desarrollo (O7); logs JSON por corrida; 42 tests |
+| 12 | README Quickstart, logs y evidencias | ✅ | Colab validado desde entorno limpio (O7); `python -m src.pipeline --reset` corre todo con un comando; logs JSON por corrida; 42 tests |
 | 13 | Backlog final priorizado | ⬜ | Paso 10 |
 
 Además, de la tabla §6.2: **Analítica o ML** ✅ `cost_anomaly_mart`: 130 anomalías, 54/54 picos inyectados detectados (D-016) · **Gobierno preliminar** ⬜ (paso 9).
@@ -40,3 +40,17 @@ Además, de la tabla §6.2: **Analítica o ML** ✅ `cost_anomaly_mart`: 130 ano
 
 **Ruta crítica:** el documento de 10–12 páginas con anexos (C-01), que responde al
 feedback del profesor. El pipeline está completo y verificado en AstraDB.
+
+## Auditoría general (13/11)
+
+Revisión contra §6.2–§6.5 y §8 de la consigna y contra el feedback de la 1.ª entrega.
+
+| # | Hallazgo | Estado |
+|---|---|---|
+| 1 | Muestras de quarantine no versionadas (`data/` está en `.gitignore`) | ✅ `evidence/quarantine_muestras.md`, regenerable con `notebooks/03_muestras_quarantine.py` |
+| 2 | README con 4 enlaces a archivos borrados de la 1.ª entrega | ✅ corregido |
+| 3 | README instalaba PySpark sin versión y no advertía sobre Windows | ✅ `requirements.txt` y nota de entorno |
+| 4 | D-004 y D-008 seguían "pendientes de A-07" | ✅ referencia a D-012 |
+| 5 | Sin un comando único para todo el pipeline | ✅ `python -m src.pipeline` |
+| 6 | Dedupe de Bronze conservaba la fila por orden de contenido (podía aislar el original) | ✅ conserva la primera aparición; test de regresión |
+| 7 | `main` 12+ commits detrás de la rama de trabajo | ⬜ unir antes de la entrega |

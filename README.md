@@ -6,11 +6,11 @@ sobre los datos de un proveedor de nube.
 
 ## Estado
 
-| Entrega | Fecha |
-|---|---|
-| 1ª parcial — Diseño y fundación | 28/09/2026 18:30 |
-| 2ª parcial — Implementación técnica | 16/11/2026 18:30 | 
-| Final — MVP integrado y defensa | 07/12/2026 21:30 | 
+| Entrega | Fecha | Estado |
+|---|---|---|
+| 1ª parcial — Diseño y fundación | 28/09/2026 18:30 | Entregada |
+| 2ª parcial — Implementación técnica | 16/11/2026 18:30 | Pipeline end-to-end ejecutable y verificado en AstraDB |
+| Final — MVP integrado y defensa | 07/12/2026 21:30 | — |
 
 ## Estructura
 
@@ -28,22 +28,31 @@ DECISIONS.md Registro de decisiones técnicas y trade-offs
 
 ## Requisitos
 
-- Python 3.10+
-- Java 17 o superior (requerido por Spark)
-- PySpark 4.2.0
-
-```bash
-pip install pyspark
-```
+- Python 3.10+ y Java 17 o superior (Spark 4 no corre con Java 11)
+- Dependencias con versión fija en `requirements.txt`: PySpark 4.2.0, pytest,
+  cassandra-driver 3.30.1
+- **Entorno de referencia: Google Colab** (supuesto S-01). También corre en Linux o
+  macOS. En Windows, PySpark necesita `winutils.exe` para escribir Parquet: usar Colab.
 
 ## Quickstart
 
-Entorno de referencia: Google Colab o Linux/macOS con Java 17+. Todos los
-comandos se corren desde la raíz del repo.
+### La forma más simple: Colab
+
+Abrir `notebooks/00_pipeline_colab.ipynb` en Colab y ejecutar todo. Instala Java,
+clona el repo, corre el pipeline dos veces (idempotencia), los tests y la carga a
+AstraDB. El token se lee de Colab Secrets.
+
+### Local, con un solo comando
 
 ```bash
 pip install -r requirements.txt
+python -m src.pipeline --reset                  # pasos 1 a 5 desde cero (~6 min)
+python -m src.pipeline --reset --with-serving   # + AstraDB (requiere credenciales, paso 6)
 ```
+
+### Paso por paso
+
+Todos los comandos se corren desde la raíz del repo.
 
 ### 1. Ingesta batch → Bronze
 
@@ -180,11 +189,22 @@ Rutas configurables por variable de entorno: `LANDING_PATH`, `EVIDENCE_PATH`.
 
 | Archivo | Contenido |
 |---|---|
-| `docs/diseno_tp1.pdf` | **Documento de diseño — entregable** |
-| `docs/diseno_tp1.md` | Fuente editable del documento |
-| `docs/diagrama_arquitectura_v1.svg` / `.png` | Diagrama de arquitectura v1 |
-| `docs/diagrama_arquitectura_v1.md` | Diagrama en Mermaid, versionado como texto |
-| `docs/checklist_entrega_1.md` | Verificación contra el anexo 9.1 de la consigna |
-| `docs/defensa_completa.md` / `.pdf` | Material interno de defensa (no se entrega) |
-| `DECISIONS.md` | 10 decisiones cerradas y 3 abiertas |
+| `docs/Entregable1_BigData_Grupo4.pdf` | Documento de diseño entregado |
+| `docs/diagrama_arquitectura_v1.svg` / `.png` / `.md` | Diagrama de arquitectura v1 |
+| `notebooks/01_perfilado_fuentes.py` | Perfilado de las fuentes |
 | `evidence/perfilado_landing.md` | Evidencia de exploración de datos |
+
+## Segunda entrega
+
+| Archivo | Contenido |
+|---|---|
+| `src/`, `tests/`, `infra/cql/` | Pipeline, 42 pruebas y CQL de serving |
+| `notebooks/00_pipeline_colab.ipynb` | Ejecución completa en Colab |
+| `DECISIONS.md` | D-001 a D-017 (D-011 en adelante, de esta entrega) y decisiones abiertas |
+| `docs/plan_correcciones.md` | Correcciones derivadas del feedback de la 1.ª entrega |
+| `docs/checklist_entrega_2.md` | Verificación contra el anexo 9.2 de la consigna |
+| `evidence/runs/` | Log JSON de cada corrida: conteos, rutas, tamaños, tiempos |
+| `evidence/idempotencia.md` | Pipeline y AstraDB ejecutados dos veces: variación 0 |
+| `evidence/quarantine_muestras.md` | Muestras por regla de calidad |
+| `evidence/a07_orden_eventos.md` | Cierre de A-07: orden temporal de los 120 archivos |
+| `evidence/serving/` | Consultas CQL, resultados, latencias y capturas de AstraDB |
