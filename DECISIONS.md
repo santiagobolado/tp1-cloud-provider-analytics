@@ -84,6 +84,9 @@ rutas a mantener.
 dataset completo mostrara eventos ordenados, la reconciliación dejaría de ser
 necesaria.
 
+> **Verificado en D-012 (2.ª entrega):** los 120 archivos no tienen orden temporal; la
+> reconciliación es necesaria.
+
 ---
 
 ## D-005 · Bronze particiona por fecha de ingesta; Silver y Gold por fecha de evento
@@ -172,6 +175,9 @@ una precaución teórica sino lo único que hace correctos a los marts.
 
 **Sujeto a A-07.** Si los ~20 archivos mostraran eventos ordenados, el porcentaje
 descartado caería y el watermark podría reducirse.
+
+> **Verificado en D-012 (2.ª entrega):** con los 120 archivos, 7 días descarta el 87,6%
+> (simulado) y el 85,2% (medido en la agregación, D-015). Se mantiene 7 días.
 
 ---
 
@@ -267,8 +273,10 @@ duplicadas en tickets, marketing y billing. Esas cifras salieron de
 `approx_count_distinct` antes de D-001; con conteo exacto hay **cero**
 duplicados en las siete fuentes. La deduplicación se mantiene, pero su
 fundamento no es la evidencia del dataset: es la garantía de idempotencia ante
-re-entregas de la misma fuente. Si aparece una clave repetida, se conserva una
-fila de forma determinística y las demás van a quarantine (`clave_duplicada`).
+re-entregas de la misma fuente. Si aparece una clave repetida, se conserva la
+primera aparición en el archivo y las siguientes van a quarantine (`clave_duplicada`).
+(Corregido en la auditoría del 13/11: la versión inicial ordenaba por contenido,
+lo que podía conservar la copia y aislar el original. Lo cubre un test.)
 
 ---
 

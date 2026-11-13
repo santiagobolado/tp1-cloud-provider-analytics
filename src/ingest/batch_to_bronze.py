@@ -62,7 +62,10 @@ def read_source(spark: SparkSession, src: BatchSource, landing: str) -> DataFram
           .option("escape", '"')                            # tags_json viene con "" (RFC 4180)
           .option("dateFormat", "yyyy-MM-dd")
           .csv(path)
-          .withColumn("source_file", F.col("_metadata.file_path")))
+          .withColumn("source_file", F.col("_metadata.file_path"))
+          # Posición de la fila en el archivo: los splits de un archivo se leen
+          # en orden, así que el id creciente respeta el orden de las líneas.
+          .withColumn("_pos", F.monotonically_increasing_id()))
     # Spark no permite filtrar solo por la columna de corruptos sin materializar
     # antes el DataFrame; el cache además evita releer el CSV en cada conteo.
     return df.cache()
@@ -95,11 +98,13 @@ def split_by_quality(df: DataFrame, src: BatchSource) -> tuple:
                      .withColumn("regla", F.lit("clave_nula"))
                      .withColumn("detalle", F.lit(f"clave natural incompleta: {key}")))
 
-    # Deduplicación determinística: entre filas con la misma clave se conserva
-    # la primera según el contenido completo, así dos corridas eligen la misma.
-    w = Window.partitionBy(*key).orderBy(record_json)
+    # Deduplicación: entre filas con la misma clave se conserva la primera
+    # aparición en el archivo; las siguientes son re-entregas y van a quarantine.
+    # (Ordenar por contenido sería determinístico pero arbitrario: podía
+    # conservar la copia y aislar el original.)
+    w = Window.partitionBy(*key).orderBy("_pos")
     ranked = parseable.filter(~key_null).withColumn("_rn", F.row_number().over(w))
-    valid = ranked.filter(F.col("_rn") == 1).drop("_rn", CORRUPT_COL)
+    valid = ranked.filter(F.col("_rn") == 1).drop("_rn", "_pos", CORRUPT_COL)
     rejected_dup = (ranked.filter(F.col("_rn") > 1).drop("_rn")
                     .withColumn("regla", F.lit("clave_duplicada"))
                     .withColumn("detalle", F.lit(f"clave natural repetida: {key}")))

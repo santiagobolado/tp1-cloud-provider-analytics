@@ -18,6 +18,8 @@ def get_spark(app_name: str, master: str = "local[*]") -> SparkSession:
         # Conservar el progreso de todos los micro-lotes (120 archivos) para la
         # evidencia; el default de 100 trunca el resumen de la corrida.
         .config("spark.sql.streaming.numRecentProgressUpdates", "1000")
+        # Sin barras de progreso: los logs de cada job ya informan conteos y tiempos.
+        .config("spark.ui.showConsoleProgress", "false")
         .getOrCreate()
     )
     spark.sparkContext.setLogLevel("ERROR")
