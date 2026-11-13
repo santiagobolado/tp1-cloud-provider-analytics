@@ -1,7 +1,7 @@
 {
   "job": "stream_to_bronze",
   "spark_version": "4.2.0",
-  "ejecutado": "2026-11-12T04:37:46+00:00",
+  "ejecutado": "2026-11-13T18:14:02+00:00",
   "watermark_dedupe": "ingest_ts, 7 days",
   "esta_corrida": {
     "bronze": {
@@ -25,5 +25,5 @@
     "filas_quarantine": 0,
     "quarantine_por_regla": {}
   },
-  "segundos": 7.4
+  "segundos": 14.8
 }

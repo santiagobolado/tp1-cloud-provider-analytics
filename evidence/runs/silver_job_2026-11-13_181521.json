@@ -1,6 +1,6 @@
 {
   "job": "silver_job",
-  "ejecutado": "2026-11-12T04:38:16+00:00",
+  "ejecutado": "2026-11-13T18:15:10+00:00",
   "eventos": {
     "filas_bronze": 43200,
     "filas_silver": 43200,
@@ -30,5 +30,5 @@
     },
     "resources": 400
   },
-  "segundos": 26.8
+  "segundos": 61.6
 }
