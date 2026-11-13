@@ -31,6 +31,13 @@ class ConservationError(RuntimeError):
     pass
 
 
+def build_mart(silver, reconciled_at: datetime):
+    """Silver -> mart reconciliado (sin escribir)."""
+    return (round_money(aggregate_daily_usage(silver))
+            .withColumn("source", F.lit("reconciliacion"))
+            .withColumn("last_reconciled_at", F.lit(reconciled_at).cast("timestamp")))
+
+
 def gold_path(cfg: Settings, mart: str = MART) -> str:
     return f"{cfg.lake}/gold/{mart}"
 
@@ -39,9 +46,7 @@ def run(spark: SparkSession, cfg: Settings) -> dict:
     t0 = time.time()
     silver = spark.read.parquet(f"{cfg.lake}/silver/usage_events")
     reconciled_at = datetime.now(timezone.utc).replace(microsecond=0, tzinfo=None)
-    mart = (round_money(aggregate_daily_usage(silver))
-            .withColumn("source", F.lit("reconciliacion"))
-            .withColumn("last_reconciled_at", F.lit(reconciled_at).cast("timestamp")))
+    mart = build_mart(silver, reconciled_at)
 
     # D-005: Gold diario por usage_date. 60 particiones, un archivo cada una.
     (mart.repartition("usage_date").write

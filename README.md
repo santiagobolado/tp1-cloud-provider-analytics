@@ -198,13 +198,16 @@ Rutas configurables por variable de entorno: `LANDING_PATH`, `EVIDENCE_PATH`.
 
 | Archivo | Contenido |
 |---|---|
-| `src/`, `tests/`, `infra/cql/` | Pipeline, 42 pruebas y CQL de serving |
+| `src/`, `tests/`, `infra/cql/` | Pipeline, 47 pruebas y CQL de serving |
 | `notebooks/00_pipeline_colab.ipynb` | Ejecución completa en Colab |
 | `DECISIONS.md` | D-001 a D-017 (D-011 en adelante, de esta entrega) y decisiones abiertas |
 | `docs/plan_correcciones.md` | Correcciones derivadas del feedback de la 1.ª entrega |
 | `docs/checklist_entrega_2.md` | Verificación contra el anexo 9.2 de la consigna |
+| `docs/gobierno.md` | Responsables, metadatos, linaje, controles y acceso |
+| `docs/diccionario_datos.md` | 25 datasets, 292 columnas (generado desde `src/governance/catalog.py`) |
 | `evidence/runs/` | Log JSON de cada corrida: conteos, rutas, tamaños, tiempos |
 | `evidence/idempotencia.md` | Pipeline y AstraDB ejecutados dos veces: variación 0 |
 | `evidence/quarantine_muestras.md` | Muestras por regla de calidad |
+| `evidence/linaje_trazado.md` | Una anomalía seguida de Gold hasta la línea de Landing |
 | `evidence/a07_orden_eventos.md` | Cierre de A-07: orden temporal de los 120 archivos |
 | `evidence/serving/` | Consultas CQL, resultados, latencias y capturas de AstraDB |
