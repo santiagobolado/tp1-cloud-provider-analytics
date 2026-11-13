@@ -1,7 +1,7 @@
 {
   "job": "gold_job",
   "mart": "org_daily_usage_by_service",
-  "last_reconciled_at": "2026-11-12T04:38:48Z",
+  "last_reconciled_at": "2026-11-13T18:15:42Z",
   "filas": 11050,
   "grano_unico": true,
   "orgs": 80,
@@ -13,6 +13,6 @@
   "filas_con_carbon_kg_nulo": 2790,
   "filas_con_genai_tokens": 848,
   "archivos_parquet": 60,
-  "bytes": 854145,
-  "segundos": 16.6
+  "bytes": 854085,
+  "segundos": 36.2
 }

@@ -1,8 +1,8 @@
 {
   "job": "batch_to_bronze",
   "spark_version": "4.2.0",
-  "ingest_date": "2026-11-12",
-  "ingest_ts": "2026-11-12T04:31:21Z",
+  "ingest_date": "2026-11-13",
+  "ingest_ts": "2026-11-13T18:02:18Z",
   "fuentes": [
     {
       "entity": "customers_orgs",
@@ -14,10 +14,10 @@
       "filas_bronze": 80,
       "filas_quarantine": 0,
       "quarantine_por_regla": {},
-      "bronze_particion": "data/bronze/customers_orgs/ingest_date=2026-11-12",
+      "bronze_particion": "data/bronze/customers_orgs/ingest_date=2026-11-13",
       "archivos_parquet": 1,
-      "bytes": 6877,
-      "segundos": 6.72
+      "bytes": 6849,
+      "segundos": 15.17
     },
     {
       "entity": "users",
@@ -29,10 +29,10 @@
       "filas_bronze": 800,
       "filas_quarantine": 0,
       "quarantine_por_regla": {},
-      "bronze_particion": "data/bronze/users/ingest_date=2026-11-12",
+      "bronze_particion": "data/bronze/users/ingest_date=2026-11-13",
       "archivos_parquet": 1,
-      "bytes": 23789,
-      "segundos": 1.75
+      "bytes": 23762,
+      "segundos": 3.66
     },
     {
       "entity": "resources",
@@ -44,10 +44,10 @@
       "filas_bronze": 400,
       "filas_quarantine": 0,
       "quarantine_por_regla": {},
-      "bronze_particion": "data/bronze/resources/ingest_date=2026-11-12",
+      "bronze_particion": "data/bronze/resources/ingest_date=2026-11-13",
       "archivos_parquet": 1,
-      "bytes": 11865,
-      "segundos": 1.41
+      "bytes": 11838,
+      "segundos": 2.93
     },
     {
       "entity": "support_tickets",
@@ -59,10 +59,10 @@
       "filas_bronze": 1000,
       "filas_quarantine": 0,
       "quarantine_por_regla": {},
-      "bronze_particion": "data/bronze/support_tickets/ingest_date=2026-11-12",
+      "bronze_particion": "data/bronze/support_tickets/ingest_date=2026-11-13",
       "archivos_parquet": 1,
-      "bytes": 19011,
-      "segundos": 1.46
+      "bytes": 18983,
+      "segundos": 4.19
     },
     {
       "entity": "marketing_touches",
@@ -74,10 +74,10 @@
       "filas_bronze": 1500,
       "filas_quarantine": 0,
       "quarantine_por_regla": {},
-      "bronze_particion": "data/bronze/marketing_touches/ingest_date=2026-11-12",
+      "bronze_particion": "data/bronze/marketing_touches/ingest_date=2026-11-13",
       "archivos_parquet": 1,
-      "bytes": 23129,
-      "segundos": 1.5
+      "bytes": 23099,
+      "segundos": 3.02
     },
     {
       "entity": "nps_surveys",
@@ -90,10 +90,10 @@
       "filas_bronze": 92,
       "filas_quarantine": 0,
       "quarantine_por_regla": {},
-      "bronze_particion": "data/bronze/nps_surveys/ingest_date=2026-11-12",
+      "bronze_particion": "data/bronze/nps_surveys/ingest_date=2026-11-13",
       "archivos_parquet": 1,
-      "bytes": 3769,
-      "segundos": 1.16
+      "bytes": 3741,
+      "segundos": 2.06
     },
     {
       "entity": "billing_monthly",
@@ -105,10 +105,10 @@
       "filas_bronze": 240,
       "filas_quarantine": 0,
       "quarantine_por_regla": {},
-      "bronze_particion": "data/bronze/billing_monthly/ingest_date=2026-11-12",
+      "bronze_particion": "data/bronze/billing_monthly/ingest_date=2026-11-13",
       "archivos_parquet": 1,
-      "bytes": 12046,
-      "segundos": 1.16
+      "bytes": 12018,
+      "segundos": 1.96
     }
   ]
 }

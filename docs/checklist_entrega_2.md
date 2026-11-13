@@ -1,6 +1,6 @@
 # Checklist — 2.ª entrega (16/11/2026, 18:30)
 
-Estado al 12/11, 02:15. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
+Estado al 13/11, 15:40. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
 
 ## Contra el checklist 9.2 de la consigna
 
@@ -14,10 +14,10 @@ Estado al 12/11, 02:15. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloque
 | 6 | Tres features calculadas | ✅ | `requests`, `cpu_hours`, `storage_gb_hours`, `cost_usd`, `genai_tokens`, `carbon_kg` en Silver; `daily_cost_usd` en Gold |
 | 7 | Tres reglas de calidad y quarantine | ✅ | Las 3 de la consigna + 4 más: `event_id` (Bronze), `costo_negativo` 211, `unit_nulo_con_value` 2.038, `value_nulo` 877. Quarantine en Bronze y Silver |
 | 8 | Mart `org_daily_usage_by_service` en Gold | ✅ | 11.050 filas, grano único, cuadra con Silver. Streaming + reconciliación (D-015) |
-| 9 | Keyspace y tabla Cassandra/AstraDB poblada | ⛔ | Código, CQL y notebook listos (D-017). **Falta crear la base en AstraDB y correr el notebook** |
-| 10 | Dos consultas CQL con resultados | ⛔ | Q1 y Q2 en `infra/cql/queries.cql`; resultados esperados verificados desde Gold. Depende del 9 |
-| 11 | Idempotencia demostrada | 🟡 | Pipeline completo corrido dos veces desde cero: variación 0 en 12 tablas (`evidence/idempotencia.md`). Falta el serving |
-| 12 | README Quickstart, logs y evidencias | 🟡 | Quickstart de los pasos 1 a 6 + notebook de Colab; logs JSON por corrida; 42 tests |
+| 9 | Keyspace y tabla Cassandra/AstraDB poblada | ✅ | AstraDB `cloud_analytics` (AWS us-east-2): `org_daily_usage_by_service` 11.050 filas, `top_services_by_org_14d` 12.314 (D-017, `evidence/runs/load_cassandra_*`) |
+| 10 | Dos consultas CQL con resultados | 🟡 | Q1: 25 filas en 39 ms; Q2: Top-3 en 38 ms; coinciden con Gold (`evidence/serving/`). Falta la captura desde la CQL Console |
+| 11 | Idempotencia demostrada | ✅ | Pipeline y carga a AstraDB ejecutados dos veces en Colab: variación 0 en 12 tablas (`evidence/idempotencia.md`) |
+| 12 | README Quickstart, logs y evidencias | ✅ | Notebook de Colab validado desde entorno limpio, mismas cifras que el desarrollo (O7); logs JSON por corrida; 42 tests |
 | 13 | Backlog final priorizado | ⬜ | Paso 10 |
 
 Además, de la tabla §6.2: **Analítica o ML** ✅ `cost_anomaly_mart`: 130 anomalías, 54/54 picos inyectados detectados (D-016) · **Gobierno preliminar** ⬜ (paso 9).
@@ -32,11 +32,11 @@ Además, de la tabla §6.2: **Analítica o ML** ✅ `cost_anomaly_mart`: 130 ano
 | 3 | Silver: eventos + maestros, v1/v2, features | Vie 13 | ✅ (adelantado) |
 | 4 | Calidad y quarantine | con 1–3 | ✅ |
 | 5 | Gold `org_daily_usage_by_service` (streaming + reconciliación) | Vie–Sáb | ✅ (adelantado) |
-| 6 | AstraDB: keyspace, tablas, carga, 2 consultas | Sáb 14 | 🟡 código listo, falta la base |
+| 6 | AstraDB: keyspace, tablas, carga, 2 consultas | Sáb 14 | ✅ (adelantado) |
 | 7 | Anomalías con MAD | Sáb 14 | ✅ (adelantado) |
-| 8 | Idempotencia end-to-end | Dom 15 | 🟡 hasta Gold ✅; falta serving |
+| 8 | Idempotencia end-to-end | Dom 15 | ✅ (adelantado) |
 | 9 | Gobierno, pruebas, logs | Dom 15 | 🟡 |
 | 10 | Documento (≤12 págs.) + anexos + diagrama v2 + backlog | Dom–Lun | ⬜ |
 
-**Ruta crítica:** AstraDB. Es lo único que depende de una acción externa y bloquea
-dos ítems obligatorios (9 y 10).
+**Ruta crítica:** el documento de 10–12 páginas con anexos (C-01), que responde al
+feedback del profesor. El pipeline está completo y verificado en AstraDB.

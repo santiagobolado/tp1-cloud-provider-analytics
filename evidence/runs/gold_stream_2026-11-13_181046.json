@@ -1,15 +1,15 @@
 {
   "job": "gold_stream",
   "watermark": "event_ts, 7 days",
-  "ejecutado": "2026-11-12T04:38:30+00:00",
+  "ejecutado": "2026-11-13T18:10:37+00:00",
   "esta_corrida": {
-    "micro_lotes": 0,
-    "eventos_leidos": 0,
+    "micro_lotes": 120,
+    "eventos_leidos": 43200,
     "latencia_por_lote_ms": {
-      "max": 0,
-      "mediana": 0
+      "max": 12680,
+      "mediana": 1282
     },
-    "watermark_final": null
+    "watermark_final": "2025-08-24T23:58:00.000Z"
   },
   "late_data": {
     "eventos_en_bronze": 43200,
@@ -23,8 +23,7 @@
     "rango_usage_date": [
       "2025-07-03",
       "2025-08-31"
-    ],
-    "cobertura_vs_reconciliado_pct": 15.1
+    ]
   },
-  "segundos": 12.0
+  "segundos": 201.3
 }

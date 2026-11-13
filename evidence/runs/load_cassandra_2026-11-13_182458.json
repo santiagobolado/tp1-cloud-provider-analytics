@@ -1,0 +1,20 @@
+{
+  "job": "load_cassandra",
+  "destino": "astra",
+  "keyspace": "cloud_analytics",
+  "ejecutado": "2026-11-13T18:24:58+00:00",
+  "filas_enviadas": {
+    "speed->org_daily_usage_by_service": 2064,
+    "org_daily_usage_by_service": 11050,
+    "top_services_by_org_14d": 12314
+  },
+  "count_antes": {
+    "org_daily_usage_by_service": 0,
+    "top_services_by_org_14d": 0
+  },
+  "count_despues": {
+    "org_daily_usage_by_service": 11050,
+    "top_services_by_org_14d": 12314
+  },
+  "segundos": 66.9
+}
