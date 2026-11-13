@@ -1,6 +1,6 @@
 # Checklist — 2.ª entrega (16/11/2026, 18:30)
 
-Estado al 13/11, 17:20. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
+Estado al 13/11, 17:35. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
 
 ## Contra el checklist 9.2 de la consigna
 
@@ -18,7 +18,7 @@ Estado al 13/11, 17:20. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloque
 | 10 | Dos consultas CQL con resultados | ✅ | Q1: 25 filas en 39 ms; Q2: Top-3 en 38 ms; coinciden con Gold. CQL, salidas y capturas de la CQL Console en `evidence/serving/` |
 | 11 | Idempotencia demostrada | ✅ | Pipeline y carga a AstraDB ejecutados dos veces en Colab: variación 0 en 12 tablas (`evidence/idempotencia.md`) |
 | 12 | README Quickstart, logs y evidencias | ✅ | Colab validado desde entorno limpio (O7); `python -m src.pipeline --reset` corre todo con un comando; logs JSON por corrida; 47 tests |
-| 13 | Backlog final priorizado | ⬜ | Paso 10 |
+| 13 | Backlog final priorizado | ✅ | `docs/backlog_final.md`: 13 obligatorios (80 h), 6 deseables (25 h), 7 fuera de alcance; congelamiento el 30/11 |
 
 Además, de la tabla §6.2: **Analítica o ML** ✅ `cost_anomaly_mart`: 130 anomalías, 54/54 picos inyectados detectados (D-016) · **Gobierno preliminar** ✅ `docs/gobierno.md`: responsables, catálogo con control automático, diccionario (292 columnas), linaje trazado de punta a punta, controles y acceso.
 

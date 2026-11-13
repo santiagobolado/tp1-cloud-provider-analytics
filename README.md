@@ -202,6 +202,7 @@ Rutas configurables por variable de entorno: `LANDING_PATH`, `EVIDENCE_PATH`.
 | `notebooks/00_pipeline_colab.ipynb` | Ejecución completa en Colab |
 | `DECISIONS.md` | D-001 a D-017 (D-011 en adelante, de esta entrega) y decisiones abiertas |
 | `docs/plan_correcciones.md` | Correcciones derivadas del feedback de la 1.ª entrega |
+| `docs/backlog_final.md` | Backlog priorizado para la entrega final (obligatorio, deseable, fuera de alcance) |
 | `docs/checklist_entrega_2.md` | Verificación contra el anexo 9.2 de la consigna |
 | `docs/diagrama_arquitectura_v2.png` / `.svg` / `.md` | Arquitectura implementada y cambios respecto de la v1 |
 | `docs/gobierno.md` | Responsables, metadatos, linaje, controles y acceso |
