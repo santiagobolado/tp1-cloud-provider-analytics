@@ -1,6 +1,6 @@
 # Checklist — 2.ª entrega (16/11/2026, 18:30)
 
-Estado al 13/11, 16:30 (después de la auditoría general). ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
+Estado al 13/11, 17:00. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
 
 ## Contra el checklist 9.2 de la consigna
 
@@ -17,10 +17,10 @@ Estado al 13/11, 16:30 (después de la auditoría general). ✅ hecho · 🟡 pa
 | 9 | Keyspace y tabla Cassandra/AstraDB poblada | ✅ | AstraDB `cloud_analytics` (AWS us-east-2): `org_daily_usage_by_service` 11.050 filas, `top_services_by_org_14d` 12.314 (D-017, `evidence/runs/load_cassandra_*`) |
 | 10 | Dos consultas CQL con resultados | ✅ | Q1: 25 filas en 39 ms; Q2: Top-3 en 38 ms; coinciden con Gold. CQL, salidas y capturas de la CQL Console en `evidence/serving/` |
 | 11 | Idempotencia demostrada | ✅ | Pipeline y carga a AstraDB ejecutados dos veces en Colab: variación 0 en 12 tablas (`evidence/idempotencia.md`) |
-| 12 | README Quickstart, logs y evidencias | ✅ | Colab validado desde entorno limpio (O7); `python -m src.pipeline --reset` corre todo con un comando; logs JSON por corrida; 42 tests |
+| 12 | README Quickstart, logs y evidencias | ✅ | Colab validado desde entorno limpio (O7); `python -m src.pipeline --reset` corre todo con un comando; logs JSON por corrida; 47 tests |
 | 13 | Backlog final priorizado | ⬜ | Paso 10 |
 
-Además, de la tabla §6.2: **Analítica o ML** ✅ `cost_anomaly_mart`: 130 anomalías, 54/54 picos inyectados detectados (D-016) · **Gobierno preliminar** ⬜ (paso 9).
+Además, de la tabla §6.2: **Analítica o ML** ✅ `cost_anomaly_mart`: 130 anomalías, 54/54 picos inyectados detectados (D-016) · **Gobierno preliminar** ✅ `docs/gobierno.md`: responsables, catálogo con control automático, diccionario (292 columnas), linaje trazado de punta a punta, controles y acceso.
 
 ## Contra el plan por pasos
 
@@ -35,7 +35,7 @@ Además, de la tabla §6.2: **Analítica o ML** ✅ `cost_anomaly_mart`: 130 ano
 | 6 | AstraDB: keyspace, tablas, carga, 2 consultas | Sáb 14 | ✅ (adelantado) |
 | 7 | Anomalías con MAD | Sáb 14 | ✅ (adelantado) |
 | 8 | Idempotencia end-to-end | Dom 15 | ✅ (adelantado) |
-| 9 | Gobierno, pruebas, logs | Dom 15 | 🟡 |
+| 9 | Gobierno, pruebas, logs | Dom 15 | ✅ (adelantado) |
 | 10 | Documento (≤12 págs.) + anexos + diagrama v2 + backlog | Dom–Lun | ⬜ |
 
 **Ruta crítica:** el documento de 10–12 páginas con anexos (C-01), que responde al

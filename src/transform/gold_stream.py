@@ -62,12 +62,17 @@ def build_stream(spark: SparkSession, cfg: Settings, max_files: int = 1) -> Data
             .drop("window"))
 
 
+def speed_frame(df: DataFrame, batch_id: int) -> DataFrame:
+    """Agregado de un micro-lote -> filas de la capa rápida."""
+    return (round_money(df)
+            .withColumn("source", F.lit("streaming"))
+            .withColumn("processed_at", F.current_timestamp())
+            .withColumn("batch_id", F.lit(batch_id)))
+
+
 def make_writer(cfg: Settings):
     def write_batch(df: DataFrame, batch_id: int) -> None:
-        (round_money(df)
-         .withColumn("source", F.lit("streaming"))
-         .withColumn("processed_at", F.current_timestamp())
-         .withColumn("batch_id", F.lit(batch_id))
+        (speed_frame(df, batch_id)
          .coalesce(1).write
          .mode("overwrite")                    # dinámico: solo la partición de este batch_id
          .partitionBy("batch_id")
