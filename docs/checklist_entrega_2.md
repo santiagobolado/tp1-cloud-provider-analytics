@@ -1,13 +1,13 @@
 # Checklist — 2.ª entrega (16/11/2026, 18:30)
 
-Estado al 13/11, 17:00. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
+Estado al 13/11, 17:20. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
 
 ## Contra el checklist 9.2 de la consigna
 
 | # | Ítem de la consigna | Estado | Evidencia / qué falta |
 |---|---|---|---|
-| 1 | Correcciones de la 1.ª entrega incorporadas | 🟡 | `docs/plan_correcciones.md`: C-02, C-03, C-04 hechas; faltan C-01 (documento corto), C-05 (diagrama), C-06 (cifras de volumen) |
-| 2 | Arquitectura actualizada | ⬜ | Diagrama v2 al final, cuando el pipeline esté completo |
+| 1 | Correcciones de la 1.ª entrega incorporadas | 🟡 | `docs/plan_correcciones.md`: C-02 a C-05 hechas; faltan C-01 (documento corto) y C-06 (cifras de volumen, van en el documento) |
+| 2 | Arquitectura actualizada | ✅ | `docs/diagrama_arquitectura_v2`: solo lo implementado, lo pendiente rotulado como tal; tabla de cambios respecto de la v1 |
 | 3 | Tres maestros batch en Bronze | ✅ | Las 7 fuentes. `src/ingest/batch_to_bronze.py`, D-011, `evidence/runs/batch_to_bronze_*` |
 | 4 | Streaming con esquema, watermark, dedupe, late data y checkpoint | ✅ | Bronze (D-013) + agregación con watermark de 7 días: 36.808 tardíos medidos y recuperados por la reconciliación (D-015) |
 | 5 | Silver para eventos y al menos un maestro | ✅ | Eventos + `customers_orgs` + `resources`; join con organizaciones. `src/transform/`, D-014 |
