@@ -27,3 +27,11 @@ checkpoint + `foreachBatch` que reescribe su `batch_id` (D-015); AstraDB, upsert
 
 **Reproducibilidad (O7).** Las cifras de Colab coinciden exactamente con las del entorno de desarrollo
 (43.200 eventos, 11.050 filas Gold, USD 147.433,98, 130 anomalías): el resultado no depende del entorno.
+
+Verificación adicional (13/11, clon limpio del commit `78becbf`, `python -m src.pipeline --reset`, 6 min 32 s,
+47 tests OK): Bronze, Silver, Gold reconciliado y anomalías idénticos a Colab. La **capa rápida** difiere
+en ±0,1% (36.807 vs. 36.808 eventos tardíos; 2.067 vs. 2.064 claves; USD 22.251,20 vs. 22.219,02): el
+orden en que Structured Streaming toma los archivos depende de su fecha de modificación, que cambia con
+cada clon, y el watermark descarta según ese orden. Es el comportamiento esperado de la capa rápida y el
+motivo de la reconciliación batch (D-004): la cifra oficial es la del mart reconciliado, que no varía.
+Dentro de un mismo entorno, re-ejecutar no cambia nada (checkpoint).
