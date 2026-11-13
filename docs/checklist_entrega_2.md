@@ -1,6 +1,6 @@
 # Checklist — 2.ª entrega (16/11/2026, 18:30)
 
-Estado al 13/11, 18:30. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
+Estado al 13/11 (chequeo final). ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloqueado
 
 ## Contra el checklist 9.2 de la consigna
 
@@ -53,4 +53,20 @@ Revisión contra §6.2–§6.5 y §8 de la consigna y contra el feedback de la 1
 | 4 | D-004 y D-008 seguían "pendientes de A-07" | ✅ referencia a D-012 |
 | 5 | Sin un comando único para todo el pipeline | ✅ `python -m src.pipeline` |
 | 6 | Dedupe de Bronze conservaba la fila por orden de contenido (podía aislar el original) | ✅ conserva la primera aparición; test de regresión |
-| 7 | `main` 12+ commits detrás de la rama de trabajo | ⬜ unir antes de la entrega |
+| 7 | `main` 18 commits detrás de la rama de trabajo | ⬜ unir antes de la entrega, etiquetar `entrega-2` y apuntar el notebook a `main` |
+| 8 | Clon limpio (`78becbf`): pipeline 6 min 32 s, 47 tests OK; Bronze, Silver, Gold y anomalías idénticos a Colab | ✅ |
+| 9 | El documento decía "cifras idénticas" también para la capa rápida, que varía ±0,1% según el orden de los micro-lotes | ✅ redacción precisada en §8, tabla O7 y `evidence/idempotencia.md` |
+| 10 | Barrido de secretos: sin tokens, bundles ni `.env` versionados (solo `AstraCS:fake` en un test) | ✅ |
+
+## Contra §6.4 (criterios de aceptación)
+
+| Criterio | Estado |
+|---|---|
+| Batch y streaming corren con los datos provistos | ✅ 7 fuentes + 120 archivos |
+| Calidad y quarantine efectivas, con ejemplos verificables | ✅ `evidence/quarantine_muestras.md` |
+| Mart FinOps en Gold y tabla AstraDB poblada | ✅ 11.050 filas en ambos |
+| Dos consultas sobre AstraDB con resultados | ✅ capturas de la CQL Console |
+| La re-ejecución no duplica | ✅ variación 0 en 12 tablas |
+| Diagrama = lo implementado | ✅ v2, lo pendiente rotulado |
+| README ejecutable desde entorno limpio | ✅ Colab y clon limpio |
+
