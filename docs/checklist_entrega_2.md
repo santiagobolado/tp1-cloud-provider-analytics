@@ -15,7 +15,7 @@ Estado al 13/11, 15:40. ✅ hecho · 🟡 parcial · ⬜ pendiente · ⛔ bloque
 | 7 | Tres reglas de calidad y quarantine | ✅ | Las 3 de la consigna + 4 más: `event_id` (Bronze), `costo_negativo` 211, `unit_nulo_con_value` 2.038, `value_nulo` 877. Quarantine en Bronze y Silver |
 | 8 | Mart `org_daily_usage_by_service` en Gold | ✅ | 11.050 filas, grano único, cuadra con Silver. Streaming + reconciliación (D-015) |
 | 9 | Keyspace y tabla Cassandra/AstraDB poblada | ✅ | AstraDB `cloud_analytics` (AWS us-east-2): `org_daily_usage_by_service` 11.050 filas, `top_services_by_org_14d` 12.314 (D-017, `evidence/runs/load_cassandra_*`) |
-| 10 | Dos consultas CQL con resultados | 🟡 | Q1: 25 filas en 39 ms; Q2: Top-3 en 38 ms; coinciden con Gold (`evidence/serving/`). Falta la captura desde la CQL Console |
+| 10 | Dos consultas CQL con resultados | ✅ | Q1: 25 filas en 39 ms; Q2: Top-3 en 38 ms; coinciden con Gold. CQL, salidas y capturas de la CQL Console en `evidence/serving/` |
 | 11 | Idempotencia demostrada | ✅ | Pipeline y carga a AstraDB ejecutados dos veces en Colab: variación 0 en 12 tablas (`evidence/idempotencia.md`) |
 | 12 | README Quickstart, logs y evidencias | ✅ | Notebook de Colab validado desde entorno limpio, mismas cifras que el desarrollo (O7); logs JSON por corrida; 42 tests |
 | 13 | Backlog final priorizado | ⬜ | Paso 10 |
