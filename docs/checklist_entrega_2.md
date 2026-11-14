@@ -53,7 +53,7 @@ Revisión contra §6.2–§6.5 y §8 de la consigna y contra el feedback de la 1
 | 4 | D-004 y D-008 seguían "pendientes de A-07" | ✅ referencia a D-012 |
 | 5 | Sin un comando único para todo el pipeline | ✅ `python -m src.pipeline` |
 | 6 | Dedupe de Bronze conservaba la fila por orden de contenido (podía aislar el original) | ✅ conserva la primera aparición; test de regresión |
-| 7 | `main` 18 commits detrás de la rama de trabajo | ⬜ unir antes de la entrega, etiquetar `entrega-2` y apuntar el notebook a `main` |
+| 7 | `main` 18 commits detrás de la rama de trabajo | ✅ unida a `main` el 13/11, tag `entrega-2`, notebook apuntando a `main` |
 | 8 | Clon limpio (`78becbf`): pipeline 6 min 32 s, 47 tests OK; Bronze, Silver, Gold y anomalías idénticos a Colab | ✅ |
 | 9 | El documento decía "cifras idénticas" también para la capa rápida, que varía ±0,1% según el orden de los micro-lotes | ✅ redacción precisada en §8, tabla O7 y `evidence/idempotencia.md` |
 | 10 | Barrido de secretos: sin tokens, bundles ni `.env` versionados (solo `AstraCS:fake` en un test) | ✅ |
