@@ -4,14 +4,6 @@ Proyecto integrador de **Big Data** · ITBA · 2.º cuatrimestre 2026
 Pipeline de ETL, streaming y serving para analítica de FinOps, Soporte y Producto
 sobre los datos de un proveedor de nube.
 
-## Estado
-
-| Entrega | Fecha | Estado |
-|---|---|---|
-| 1ª parcial — Diseño y fundación | 28/09/2026 18:30 | Entregada |
-| 2ª parcial — Implementación técnica | 16/11/2026 18:30 | Pipeline end-to-end ejecutable y verificado en AstraDB |
-| Final — MVP integrado y defensa | 07/12/2026 21:30 | — |
-
 ## Estructura
 
 ```
