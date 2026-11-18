@@ -200,6 +200,46 @@ Lee Landing en modo read-only y es idempotente.
 
 Rutas configurables por variable de entorno: `LANDING_PATH`, `EVIDENCE_PATH`.
 
+## Solución de problemas
+
+| Síntoma | Causa | Qué hacer |
+|---|---|---|
+| `UnsupportedClassVersionError` o Spark no arranca | Java 11 o anterior | Instalar Java 17 (Colab: la primera celda del notebook lo hace) |
+| Error al escribir Parquet en Windows | Falta `winutils.exe` | Usar Colab (entorno de referencia, S-01) |
+| `PATH_NOT_FOUND .../bronze/billing_monthly` en `silver_job` | Bronze incompleto: Silver necesita las 7 fuentes | Correr antes `python -m src.ingest.batch_to_bronze` (sin filtrar fuentes) |
+| `ConservationError` y el job termina con código 1 | Un control de grano o de cuadre no se cumplió | Ver el detalle en el log y en `evidence/runs/<job>_*.json`; no se publica nada a medias |
+| La segunda corrida del streaming procesa 0 micro-lotes | Es lo esperado: el checkpoint recuerda los archivos ya leídos | Para reprocesar desde cero: `python -m src.pipeline --reset`. **No** borrar solo los checkpoints |
+| La capa rápida difiere ±0,1% entre dos clones | El orden de lectura depende de la fecha de los archivos (D-004) | Esperable; la cifra oficial es la del mart reconciliado, que no varía |
+| `Faltan credenciales. Definí ASTRA_DB_BUNDLE_PATH...` | Variables de AstraDB sin definir | Ver `config/.env.example`; en Colab, Secrets con acceso habilitado al notebook |
+| Los Secrets de Colab no aparecen | Se guardan por cuenta de Google | Crearlos de nuevo con la cuenta que corre el notebook |
+| No se encuentra el Secure Connect Bundle | La consola de Astra lo muestra por base y región | En la base: *Overview → Regions → ⋯ → Download SCB* |
+| Timeout o `NoHostAvailable` al conectar | La base de AstraDB está hibernada | Reanudarla desde la consola y esperar a que figure `ACTIVE` |
+| La evidencia dice "Token usado: administrador" | Falta `ASTRA_DB_TOKEN_READONLY` | Crear un token con rol *Read Only User* (D-025) |
+| `FutureWarning` de pandas al iniciar Spark | Aviso de PySpark sobre pandas 3 | Inofensivo: el pipeline no usa pandas |
+
+## Limitaciones
+
+Declaradas en `DECISIONS.md`; ninguna impide responder las cinco consultas.
+
+- **Tasa ARS sospechosa (D-019).** Los montos en ARS parecen estar en otra escala: una
+  factura queda en ~USD 1,19. Son el 21% de las facturas y el 0,05% del revenue. Se
+  aplica la tasa de la fuente, sin corregirla.
+- **Notas de crédito con impuestos positivos (D-019).** 13 facturas; se marcan y no se corrigen.
+- **CSAT fuera de escala (D-022).** 40 tickets con CSAT 0, 6 o 7: el ticket cuenta, su CSAT no.
+- **GenAI desde el 2025-07-18 (D-020).** Los eventos v1 no traen tokens; su costo está
+  en `org_daily_usage_by_service`, no en el mart de tokens.
+- **Capa rápida incompleta por diseño (D-015).** Los archivos llegan sin orden temporal y
+  el watermark de 7 días descarta el 85% como tardío; la reconciliación batch los recupera.
+- **Anomalías sin etiquetas (D-016).** Se detectan los 54 picos inyectados, pero sin
+  etiquetas no hay precisión medible; la línea de base usa la serie completa.
+- **"Últimos N días" anclados al fin del dataset** (2025-08-31) en Q2 y Q3, no a la fecha actual.
+- **Escala no ejercitada.** 13 MB de datos en Spark `local[*]`: el diseño apunta a escala,
+  pero no se midió en un clúster. Sin orquestador (cadencia manual con `src.pipeline`).
+- **Entorno sin permisos por usuario.** En Colab el lake vive en el disco de la sesión;
+  la matriz de acceso de `docs/gobierno.md` se cumple por construcción, no por IAM. La
+  retención por zona está declarada pero no se puede ejercitar con 4 meses de datos.
+- **Sin SCD (D-022).** Los maestros llegan como una sola foto; SCD tipo 2 quedó como deseable.
+
 ## Convenciones
 
 - **Landing es inmutable.** Ningún proceso escribe en `data/landing/`.
