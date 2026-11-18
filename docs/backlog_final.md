@@ -57,6 +57,22 @@ Declarado desde el TP1 (§2.5, §12.6) o surgido en esta entrega. Se documenta c
 | Ejecución de la retención por zona | Declarada; no se puede ejercitar con 4 meses |
 | Conector JVM de Spark para Cassandra | El driver de Python cubre el caso (D-017) |
 
+## Estado al 18/11
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| O-1 revenue, O-2 tickets, O-3 GenAI | hecho | D-019, D-022, D-023; `evidence/runs/gold_domains_job_*` |
+| O-4 Q3, Q4 y Q5 en AstraDB | hecho | D-024; `evidence/serving/consultas_2026-11-18_*.md` y capturas `q3`–`q5` |
+| O-5 invariantes de users y marketing | hecho | D-022 (232 y 96 casos, iguales al perfilado) |
+| O-6 cierre de A-09 | hecho | D-021 |
+| O-7 gobierno extendido a los marts nuevos | hecho | `docs/gobierno.md` versión final; diccionario con 39 datasets |
+| O-8 Colab y `src.pipeline` desde entorno limpio | hecho | corrida en Colab del 18/11; `evidence/idempotencia.md` |
+| O-9 diagrama v3 y documentación técnica | pendiente | 21/11 |
+| O-10 feedback de la 2.ª entrega | hecho | `docs/plan_correcciones.md` (C-07 a C-10) |
+| O-11 a O-13 presentación, video y defensa | pendiente | 22/11 |
+| D-1 token de solo lectura | hecho | D-025 (se adelantó: el documento de gobierno lo prometía) |
+| D-2 a D-6 | no se hacen | congelamiento de alcance (C-08) |
+
 ## Calendario
 
 Recalendarizado el 17/11 para el envío del 23/11.

@@ -1,6 +1,6 @@
 # Diccionario de datos
 
-Generado: 2026-11-13T19:05:25+00:00 desde `src/governance/catalog.py` con `python notebooks/04_diccionario_datos.py`.
+Generado: 2026-11-18T19:55:27+00:00 desde `src/governance/catalog.py` con `python notebooks/04_diccionario_datos.py`.
 No editar a mano: se regenera, y `tests/test_governance.py` falla si una columna
 del pipeline no tiene descripción.
 
@@ -26,11 +26,25 @@ del pipeline no tiene descripción.
 | [`silver.resources`](#silverresources) | Silver | un recurso | sin particionar | R3 Procesamiento y analítica | 24 meses |
 | [`silver.usage_events`](#silverusage_events) | Silver | un evento | event_date, service | R3 Procesamiento y analítica | 24 meses |
 | [`quarantine.silver_usage_events`](#quarantinesilver_usage_events) | Quarantine | una regla violada por un evento | regla | R2 Ingesta y calidad | 6 meses |
+| [`silver.billing_monthly`](#silverbilling_monthly) | Silver | una factura | month | R3 Procesamiento y analítica | 24 meses |
+| [`silver.support_tickets`](#silversupport_tickets) | Silver | un ticket | sin particionar | R3 Procesamiento y analítica | 24 meses |
+| [`silver.users`](#silverusers) | Silver | un usuario | sin particionar | R3 Procesamiento y analítica | 24 meses |
+| [`silver.marketing_touches`](#silvermarketing_touches) | Silver | una interacción | sin particionar | R3 Procesamiento y analítica | 24 meses |
+| [`quarantine.silver_billing_monthly`](#quarantinesilver_billing_monthly) | Quarantine | una regla violada por un registro | regla | R2 Ingesta y calidad | 6 meses |
+| [`quarantine.silver_support_tickets`](#quarantinesilver_support_tickets) | Quarantine | una regla violada por un registro | regla | R2 Ingesta y calidad | 6 meses |
+| [`quarantine.silver_users`](#quarantinesilver_users) | Quarantine | una regla violada por un registro | regla | R2 Ingesta y calidad | 6 meses |
+| [`quarantine.silver_marketing_touches`](#quarantinesilver_marketing_touches) | Quarantine | una regla violada por un registro | regla | R2 Ingesta y calidad | 6 meses |
 | [`gold.org_daily_usage_by_service`](#goldorg_daily_usage_by_service) | Gold | org_id, usage_date, service | usage_date | R3 Procesamiento y analítica | 36 meses |
 | [`gold.org_daily_usage_by_service_speed`](#goldorg_daily_usage_by_service_speed) | Gold | clave del mart × micro-lote | batch_id | R3 Procesamiento y analítica | vida del job |
 | [`gold.cost_anomaly_mart`](#goldcost_anomaly_mart) | Gold | org_id, date, service | date | R3 Procesamiento y analítica | 36 meses |
+| [`gold.revenue_by_org_month`](#goldrevenue_by_org_month) | Gold | org_id, month | month | R3 Procesamiento y analítica | 36 meses |
+| [`gold.tickets_by_org_date`](#goldtickets_by_org_date) | Gold | org_id, ticket_date, severity | sin particionar | R3 Procesamiento y analítica | 36 meses |
+| [`gold.genai_tokens_by_org_date`](#goldgenai_tokens_by_org_date) | Gold | org_id, usage_date | usage_date | R3 Procesamiento y analítica | 36 meses |
 | [`cassandra.org_daily_usage_by_service`](#cassandraorg_daily_usage_by_service) | Serving | org_id, usage_date, service | PK ((org_id), usage_date, service) | R4 Serving y reproducibilidad | la del mart |
 | [`cassandra.top_services_by_org_14d`](#cassandratop_services_by_org_14d) | Serving | org_id, as_of_date, rank | PK ((org_id, as_of_date), rank) | R4 Serving y reproducibilidad | la del mart |
+| [`cassandra.tickets_by_severity_date`](#cassandratickets_by_severity_date) | Serving | severity, ticket_date | PK ((severity), ticket_date) | R4 Serving y reproducibilidad | la del mart |
+| [`cassandra.revenue_by_org_month`](#cassandrarevenue_by_org_month) | Serving | org_id, month | PK ((org_id), month) | R4 Serving y reproducibilidad | la del mart |
+| [`cassandra.genai_tokens_by_org_date`](#cassandragenai_tokens_by_org_date) | Serving | org_id, usage_date | PK ((org_id), usage_date) | R4 Serving y reproducibilidad | la del mart |
 
 ## bronze.customers_orgs
 
@@ -465,6 +479,181 @@ Copias de auditoría de eventos marcados (siguen en Silver).
 | `source_file` | string | Linaje: ruta del archivo de Landing de origen. |
 | `ingest_ts` | timestamp | Linaje: fecha-hora de la corrida (batch) o del micro-lote (streaming). |
 
+## silver.billing_monthly
+
+Facturas con montos normalizados a USD (D-007, D-019).
+
+- **Ruta:** `silver/billing_monthly` · **Zona:** Silver · **Grano:** una factura
+- **Produce:** `src.transform.silver_job` · **Linaje (origen):** `bronze.billing_monthly`, `silver.customers_orgs`
+- **Partición:** month · **Retención:** 24 meses · **Responsable:** R3 Procesamiento y analítica
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `invoice_id` | string | Identificador de la factura mensual. |
+| `org_id` | string | Identificador de la organización cliente (FK a customers_orgs). |
+| `org_name` | string | Nombre de la organización. |
+| `plan_tier` | string | Plan contratado: free, standard, pro o enterprise. |
+| `month` | date | Mes facturado (primer día del mes). |
+| `currency` | string | Moneda de la factura: USD, ARS, EUR. |
+| `subtotal` | double | Subtotal de la factura en moneda original. |
+| `credits` | double | Créditos en moneda original; nulo resuelto como 0 (D-007). |
+| `taxes` | double | Impuestos de la factura en moneda original. |
+| `exchange_rate_to_usd` | double | Tipo de cambio a USD informado por la fuente (ruidoso en USD, D-007). |
+| `fx_applied` | double | Tipo de cambio aplicado: 1,0 en USD (D-007); el de la fuente en ARS y EUR (D-019). |
+| `credits_usd` | double | Créditos de la factura en USD (credits × fx_applied). |
+| `taxes_usd` | double | Impuestos de la factura en USD (taxes × fx_applied). |
+| `net_revenue_usd` | double | Revenue neto en USD: (subtotal − credits) × fx_applied (D-019). |
+| `total_billed_usd` | double | Total facturado en USD: (subtotal − credits + taxes) × fx_applied (D-019). |
+| `is_credit_note` | boolean | Subtotal negativo: nota de crédito o ajuste (flag, no rechazo). |
+| `quality_flags` | array<string> | Reglas de calidad marcadas en la fila (no bloqueantes). |
+| `source_file` | string | Linaje: ruta del archivo de Landing de origen. |
+| `ingest_ts` | timestamp | Linaje: fecha-hora de la corrida (batch) o del micro-lote (streaming). |
+| `silver_ts` | timestamp | Linaje: fecha-hora de la corrida que escribió Silver. |
+
+## silver.support_tickets
+
+Tickets conformados con estado, tiempo de resolución y CSAT validado (D-022).
+
+- **Ruta:** `silver/support_tickets` · **Zona:** Silver · **Grano:** un ticket
+- **Produce:** `src.transform.silver_job` · **Linaje (origen):** `bronze.support_tickets`, `silver.customers_orgs`
+- **Partición:** sin particionar · **Retención:** 24 meses · **Responsable:** R3 Procesamiento y analítica
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `ticket_id` | string | Identificador del ticket de soporte. |
+| `org_id` | string | Identificador de la organización cliente (FK a customers_orgs). |
+| `org_name` | string | Nombre de la organización. |
+| `plan_tier` | string | Plan contratado: free, standard, pro o enterprise. |
+| `category` | string | Categoría del ticket. |
+| `severity` | string | Severidad del ticket: low, medium, high, critical. |
+| `ticket_date` | date | Fecha de apertura del ticket (created_at); fecha del mart de Soporte. |
+| `resolved_at` | date | Fecha de resolución; nulo = ticket abierto (nulo semántico). |
+| `is_open` | boolean | Ticket abierto: resolved_at nulo (nulo semántico). |
+| `resolution_days` | int | Días entre apertura y resolución; nulo si el ticket sigue abierto. |
+| `csat` | double | CSAT para consumo (escala 1-5); nulo si no se respondió o si estaba fuera de escala (D-022). |
+| `csat_raw` | double | CSAT tal como llega de la fuente, incluso fuera de la escala 1-5 (D-022). |
+| `sla_breached` | boolean | Indica si el ticket incumplió el SLA. |
+| `quality_flags` | array<string> | Reglas de calidad marcadas en la fila (no bloqueantes). |
+| `source_file` | string | Linaje: ruta del archivo de Landing de origen. |
+| `ingest_ts` | timestamp | Linaje: fecha-hora de la corrida (batch) o del micro-lote (streaming). |
+| `silver_ts` | timestamp | Linaje: fecha-hora de la corrida que escribió Silver. |
+
+## silver.users
+
+Usuarios sin email (minimización) con la invariante last_login >= created_at (D-022).
+
+- **Ruta:** `silver/users` · **Zona:** Silver · **Grano:** un usuario
+- **Produce:** `src.transform.silver_job` · **Linaje (origen):** `bronze.users`, `silver.customers_orgs`
+- **Partición:** sin particionar · **Retención:** 24 meses · **Responsable:** R3 Procesamiento y analítica
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `user_id` | string | Identificador del usuario. |
+| `org_id` | string | Identificador de la organización cliente (FK a customers_orgs). |
+| `role` | string | Rol del usuario en la organización. |
+| `active` | boolean | Indica si el usuario está activo. |
+| `created_at` | date | Fecha de creación del registro en el sistema de origen. |
+| `last_login` | date | Último acceso del usuario; nulo si nunca ingresó. |
+| `has_logged_in` | boolean | El usuario ingresó al menos una vez (last_login no nulo). |
+| `quality_flags` | array<string> | Reglas de calidad marcadas en la fila (no bloqueantes). |
+| `source_file` | string | Linaje: ruta del archivo de Landing de origen. |
+| `ingest_ts` | timestamp | Linaje: fecha-hora de la corrida (batch) o del micro-lote (streaming). |
+| `silver_ts` | timestamp | Linaje: fecha-hora de la corrida que escribió Silver. |
+
+## silver.marketing_touches
+
+Interacciones de marketing con la invariante del embudo converted => clicked (D-022).
+
+- **Ruta:** `silver/marketing_touches` · **Zona:** Silver · **Grano:** una interacción
+- **Produce:** `src.transform.silver_job` · **Linaje (origen):** `bronze.marketing_touches`, `silver.customers_orgs`
+- **Partición:** sin particionar · **Retención:** 24 meses · **Responsable:** R3 Procesamiento y analítica
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `touch_id` | string | Identificador de la interacción de marketing. |
+| `org_id` | string | Identificador de la organización cliente (FK a customers_orgs). |
+| `campaign` | string | Campaña de marketing. |
+| `channel` | string | Canal de la interacción: email, ads, event, in_app. |
+| `touch_date` | date | Fecha de la interacción de marketing (columna timestamp de la fuente). |
+| `clicked` | boolean | Indica si hubo clic. |
+| `converted` | boolean | Indica si hubo conversión. |
+| `quality_flags` | array<string> | Reglas de calidad marcadas en la fila (no bloqueantes). |
+| `source_file` | string | Linaje: ruta del archivo de Landing de origen. |
+| `ingest_ts` | timestamp | Linaje: fecha-hora de la corrida (batch) o del micro-lote (streaming). |
+| `silver_ts` | timestamp | Linaje: fecha-hora de la corrida que escribió Silver. |
+
+## quarantine.silver_billing_monthly
+
+Copias de auditoría de registros de billing_monthly con defectos (siguen en Silver, D-022).
+
+- **Ruta:** `quarantine/silver_billing_monthly` · **Zona:** Quarantine · **Grano:** una regla violada por un registro
+- **Produce:** `src.transform.silver_job` · **Linaje (origen):** `bronze.billing_monthly`
+- **Partición:** regla · **Retención:** 6 meses · **Responsable:** R2 Ingesta y calidad
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `entity` | — | Dataset de origen del registro en quarantine. |
+| `regla` | — | Regla de calidad violada (motivo). |
+| `record_id` | — | Clave natural del registro en quarantine (invoice_id, ticket_id, user_id o touch_id). |
+| `record_json` | — | Registro completo serializado a JSON (lo que se pudo parsear). |
+| `destino_en_silver` | — | promovido_con_flag (sigue en Silver) o descartado (duplicado). |
+| `source_file` | — | Linaje: ruta del archivo de Landing de origen. |
+| `ingest_ts` | — | Linaje: fecha-hora de la corrida (batch) o del micro-lote (streaming). |
+
+## quarantine.silver_support_tickets
+
+Copias de auditoría de registros de support_tickets con defectos (siguen en Silver, D-022).
+
+- **Ruta:** `quarantine/silver_support_tickets` · **Zona:** Quarantine · **Grano:** una regla violada por un registro
+- **Produce:** `src.transform.silver_job` · **Linaje (origen):** `bronze.support_tickets`
+- **Partición:** regla · **Retención:** 6 meses · **Responsable:** R2 Ingesta y calidad
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `entity` | string | Dataset de origen del registro en quarantine. |
+| `regla` | string | Regla de calidad violada (motivo). |
+| `record_id` | string | Clave natural del registro en quarantine (invoice_id, ticket_id, user_id o touch_id). |
+| `record_json` | string | Registro completo serializado a JSON (lo que se pudo parsear). |
+| `destino_en_silver` | string | promovido_con_flag (sigue en Silver) o descartado (duplicado). |
+| `source_file` | string | Linaje: ruta del archivo de Landing de origen. |
+| `ingest_ts` | timestamp | Linaje: fecha-hora de la corrida (batch) o del micro-lote (streaming). |
+
+## quarantine.silver_users
+
+Copias de auditoría de registros de users con defectos (siguen en Silver, D-022).
+
+- **Ruta:** `quarantine/silver_users` · **Zona:** Quarantine · **Grano:** una regla violada por un registro
+- **Produce:** `src.transform.silver_job` · **Linaje (origen):** `bronze.users`
+- **Partición:** regla · **Retención:** 6 meses · **Responsable:** R2 Ingesta y calidad
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `entity` | string | Dataset de origen del registro en quarantine. |
+| `regla` | string | Regla de calidad violada (motivo). |
+| `record_id` | string | Clave natural del registro en quarantine (invoice_id, ticket_id, user_id o touch_id). |
+| `record_json` | string | Registro completo serializado a JSON (lo que se pudo parsear). |
+| `destino_en_silver` | string | promovido_con_flag (sigue en Silver) o descartado (duplicado). |
+| `source_file` | string | Linaje: ruta del archivo de Landing de origen. |
+| `ingest_ts` | timestamp | Linaje: fecha-hora de la corrida (batch) o del micro-lote (streaming). |
+
+## quarantine.silver_marketing_touches
+
+Copias de auditoría de registros de marketing_touches con defectos (siguen en Silver, D-022).
+
+- **Ruta:** `quarantine/silver_marketing_touches` · **Zona:** Quarantine · **Grano:** una regla violada por un registro
+- **Produce:** `src.transform.silver_job` · **Linaje (origen):** `bronze.marketing_touches`
+- **Partición:** regla · **Retención:** 6 meses · **Responsable:** R2 Ingesta y calidad
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `entity` | string | Dataset de origen del registro en quarantine. |
+| `regla` | string | Regla de calidad violada (motivo). |
+| `record_id` | string | Clave natural del registro en quarantine (invoice_id, ticket_id, user_id o touch_id). |
+| `record_json` | string | Registro completo serializado a JSON (lo que se pudo parsear). |
+| `destino_en_silver` | string | promovido_con_flag (sigue en Silver) o descartado (duplicado). |
+| `source_file` | string | Linaje: ruta del archivo de Landing de origen. |
+| `ingest_ts` | timestamp | Linaje: fecha-hora de la corrida (batch) o del micro-lote (streaming). |
+
 ## gold.org_daily_usage_by_service
 
 Mart FinOps oficial (reconciliado). Responde P1 y P2.
@@ -551,6 +740,72 @@ Score y flag de anomalía de costo por celda (D-010, D-016). Responde P6.
 | `event_count` | bigint | Cantidad de eventos agregados. |
 | `method` | string | Método y umbral aplicados. |
 
+## gold.revenue_by_org_month
+
+Mart FinOps de revenue mensual en USD con créditos, impuestos y FX (D-019). Responde P4.
+
+- **Ruta:** `gold/revenue_by_org_month` · **Zona:** Gold · **Grano:** org_id, month
+- **Produce:** `src.transform.gold_domains_job` · **Linaje (origen):** `silver.billing_monthly`
+- **Partición:** month · **Retención:** 36 meses · **Responsable:** R3 Procesamiento y analítica
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `org_id` | string | Identificador de la organización cliente (FK a customers_orgs). |
+| `month` | date | Mes facturado (primer día del mes). |
+| `org_name` | string | Nombre de la organización. |
+| `plan_tier` | string | Plan contratado: free, standard, pro o enterprise. |
+| `currency` | string | Moneda(s) de las facturas del mes, separadas por coma. |
+| `fx_applied` | double | Tipo de cambio aplicado en el mes; nulo si el mes mezcla tasas (D-019). |
+| `subtotal_usd` | double | Subtotal del mes en USD (subtotal × fx_applied). |
+| `credits_usd` | double | Créditos de la factura en USD (credits × fx_applied). |
+| `taxes_usd` | double | Impuestos de la factura en USD (taxes × fx_applied). |
+| `net_revenue_usd` | double | Revenue neto en USD: (subtotal − credits) × fx_applied (D-019). |
+| `total_billed_usd` | double | Total facturado en USD: (subtotal − credits + taxes) × fx_applied (D-019). |
+| `invoice_count` | bigint | Cantidad de facturas agregadas. |
+| `has_credit_note` | boolean | El mes incluye al menos una nota de crédito (subtotal < 0). |
+
+## gold.tickets_by_org_date
+
+Mart de Soporte: volumen, SLA y CSAT por día de apertura y severidad. Responde P3.
+
+- **Ruta:** `gold/tickets_by_org_date` · **Zona:** Gold · **Grano:** org_id, ticket_date, severity
+- **Produce:** `src.transform.gold_domains_job` · **Linaje (origen):** `silver.support_tickets`
+- **Partición:** sin particionar · **Retención:** 36 meses · **Responsable:** R3 Procesamiento y analítica
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `org_id` | string | Identificador de la organización cliente (FK a customers_orgs). |
+| `ticket_date` | date | Fecha de apertura del ticket (created_at); fecha del mart de Soporte. |
+| `severity` | string | Severidad del ticket: low, medium, high, critical. |
+| `org_name` | string | Nombre de la organización. |
+| `plan_tier` | string | Plan contratado: free, standard, pro o enterprise. |
+| `ticket_count` | bigint | Tickets abiertos ese día (por fecha de apertura). |
+| `open_count` | bigint | De esos tickets, cuántos siguen abiertos (resolved_at nulo). |
+| `sla_breached_count` | bigint | De esos tickets, cuántos incumplieron el SLA. |
+| `csat_responses` | bigint | Tickets con CSAT válido (1-5, D-022). |
+| `csat_sum` | double | Suma del CSAT válido; permite re-agregar el promedio. |
+| `sla_breach_rate` | double | sla_breached_count / ticket_count. |
+| `csat_avg` | double | CSAT promedio: csat_sum / csat_responses; nulo si no hubo respuestas. |
+
+## gold.genai_tokens_by_org_date
+
+Mart de Producto: tokens GenAI y costo estimado por día, desde 2025-07-18 (D-020). Responde P5.
+
+- **Ruta:** `gold/genai_tokens_by_org_date` · **Zona:** Gold · **Grano:** org_id, usage_date
+- **Produce:** `src.transform.gold_domains_job` · **Linaje (origen):** `silver.usage_events`
+- **Partición:** usage_date · **Retención:** 36 meses · **Responsable:** R3 Procesamiento y analítica
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `org_id` | string | Identificador de la organización cliente (FK a customers_orgs). |
+| `usage_date` | date | Día de uso; clave de partición de Gold. |
+| `org_name` | string | Nombre de la organización. |
+| `plan_tier` | string | Plan contratado: free, standard, pro o enterprise. |
+| `genai_tokens` | bigint | Tokens GenAI; solo v2 y service = genai. |
+| `genai_cost_usd` | double | Costo estimado en USD de los eventos GenAI que reportan tokens. |
+| `event_count` | bigint | Eventos GenAI v2 agregados (los que reportan tokens). |
+| `cost_per_1k_tokens_usd` | double | genai_cost_usd × 1.000 / genai_tokens. |
+
 ## cassandra.org_daily_usage_by_service
 
 Tabla de serving de P1 (D-017).
@@ -597,5 +852,73 @@ Tabla de serving de P2 (D-017).
 | `requests_14d` | double | Requests acumulados en los 14 días. |
 | `days_with_usage` | int | Días con uso del servicio dentro de la ventana. |
 | `window_start` | date | Primer día de la ventana de 14 días. |
+| `loaded_at` | timestamp | Fecha-hora de carga en Cassandra. |
+
+## cassandra.tickets_by_severity_date
+
+Tabla de serving de P3, con la partición de total 'all' y días sin tickets en 0 (D-018).
+
+- **Ruta:** `cloud_analytics.tickets_by_severity_date` · **Zona:** Serving · **Grano:** severity, ticket_date
+- **Produce:** `src.serving.load_cassandra` · **Linaje (origen):** `gold.tickets_by_org_date`
+- **Partición:** PK ((severity), ticket_date) · **Retención:** la del mart · **Responsable:** R4 Serving y reproducibilidad
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `severity` | text | Severidad del ticket, o 'all' para el total de todas las severidades. |
+| `ticket_date` | date | Fecha de apertura del ticket (created_at); fecha del mart de Soporte. |
+| `ticket_count` | int | Tickets abiertos ese día con esa severidad (0 si no hubo). |
+| `open_count` | int | De esos tickets, cuántos siguen abiertos (resolved_at nulo). |
+| `sla_breached_count` | int | De esos tickets, cuántos incumplieron el SLA. |
+| `sla_breach_rate` | double | sla_breached_count / ticket_count. |
+| `csat_responses` | int | Tickets con CSAT válido (1-5, D-022). |
+| `csat_avg` | double | CSAT promedio: csat_sum / csat_responses; nulo si no hubo respuestas. |
+| `org_count` | int | Organizaciones con tickets ese día. |
+| `loaded_at` | timestamp | Fecha-hora de carga en Cassandra. |
+
+## cassandra.revenue_by_org_month
+
+Tabla de serving de P4, con la partición de total org_id = 'all' (D-024).
+
+- **Ruta:** `cloud_analytics.revenue_by_org_month` · **Zona:** Serving · **Grano:** org_id, month
+- **Produce:** `src.serving.load_cassandra` · **Linaje (origen):** `gold.revenue_by_org_month`
+- **Partición:** PK ((org_id), month) · **Retención:** la del mart · **Responsable:** R4 Serving y reproducibilidad
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `org_id` | text | Organización, o 'all' para el total de la plataforma. |
+| `month` | date | Mes facturado (primer día del mes). |
+| `org_name` | text | Nombre de la organización. |
+| `plan_tier` | text | Plan contratado: free, standard, pro o enterprise. |
+| `currency` | text | Moneda(s) facturadas en el mes, separadas por coma. |
+| `fx_applied` | double | Tipo de cambio aplicado; nulo si el mes mezcla monedas (siempre en 'all'). |
+| `subtotal_usd` | double | Subtotal del mes en USD (subtotal × fx_applied). |
+| `credits_usd` | double | Créditos de la factura en USD (credits × fx_applied). |
+| `taxes_usd` | double | Impuestos de la factura en USD (taxes × fx_applied). |
+| `net_revenue_usd` | double | Revenue neto en USD: (subtotal − credits) × fx_applied (D-019). |
+| `total_billed_usd` | double | Total facturado en USD: (subtotal − credits + taxes) × fx_applied (D-019). |
+| `invoice_count` | int | Cantidad de facturas agregadas. |
+| `has_credit_note` | boolean | El mes incluye al menos una nota de crédito (subtotal < 0). |
+| `org_count` | int | Organizaciones agregadas en la fila (1, o todas en 'all'). |
+| `loaded_at` | timestamp | Fecha-hora de carga en Cassandra. |
+
+## cassandra.genai_tokens_by_org_date
+
+Tabla de serving de P5, con la partición de total org_id = 'all' (D-024).
+
+- **Ruta:** `cloud_analytics.genai_tokens_by_org_date` · **Zona:** Serving · **Grano:** org_id, usage_date
+- **Produce:** `src.serving.load_cassandra` · **Linaje (origen):** `gold.genai_tokens_by_org_date`
+- **Partición:** PK ((org_id), usage_date) · **Retención:** la del mart · **Responsable:** R4 Serving y reproducibilidad
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `org_id` | text | Organización, o 'all' para el total de la plataforma. |
+| `usage_date` | date | Día de uso; clave de partición de Gold. |
+| `org_name` | text | Nombre de la organización. |
+| `plan_tier` | text | Plan contratado: free, standard, pro o enterprise. |
+| `genai_tokens` | bigint | Tokens GenAI; solo v2 y service = genai. |
+| `genai_cost_usd` | double | Costo estimado en USD de los eventos GenAI que reportan tokens. |
+| `cost_per_1k_tokens_usd` | double | genai_cost_usd × 1.000 / genai_tokens. |
+| `event_count` | int | Eventos GenAI v2 agregados (los que reportan tokens). |
+| `org_count` | int | Organizaciones con uso de GenAI agregadas en la fila. |
 | `loaded_at` | timestamp | Fecha-hora de carga en Cassandra. |
 

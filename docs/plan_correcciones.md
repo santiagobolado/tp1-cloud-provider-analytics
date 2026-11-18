@@ -23,5 +23,5 @@ entre catálogo, código, tests, Gold y serving.
 |---|---|---|---|---|---|---|---|
 | C-07 | Repartir el conocimiento: cada integrante es dueño de un rol (R1–R4) y suplente de otro, y los cuatro pueden explicar el recorrido completo | Feedback (Defensa, 9,5) | Alta | los 4 | 22/11 | Guion de defensa con roles; ensayo con preguntas cruzadas | pendiente |
 | C-08 | Recortar el alcance a lo funcional: los deseables del backlog no se hacen antes del envío; GenAI solo batch (D-020) | Recomendación del profesor | Alta | R1 | 17/11 | `docs/backlog_final.md` recalendarizado; D-020 | hecho |
-| C-09 | Coherencia entre catálogo, código, tests, Gold y serving para los tres marts nuevos | Recomendación del profesor | Alta | R1 / R2 | 21/11 | `test_governance` en verde con los 5 marts; diccionario regenerado | pendiente |
-| C-10 | `evidence/idempotencia.md` cita el commit `78becbf`; el código actual está en otro commit | Revisión interna | Baja | R4 | 20/11 | Evidencia regenerada con la corrida final | pendiente |
+| C-09 | Coherencia entre catálogo, código, tests, Gold y serving para los tres marts nuevos | Recomendación del profesor | Alta | R1 / R2 | 21/11 | `test_governance` en verde con los 5 marts; diccionario regenerado (39 datasets, 447 columnas); test que compara el CQL con las columnas de Spark | hecho |
+| C-10 | `evidence/idempotencia.md` cita el commit `78becbf`; el código actual está en otro commit | Revisión interna | Baja | R4 | 20/11 | Evidencia regenerada con la corrida de Colab del 18/11 (23 tablas, variación 0) | hecho |

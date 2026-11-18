@@ -1,7 +1,9 @@
-# Gobierno preliminar · 2.ª entrega
+# Gobierno · versión final
 
-Consigna §6.2: controles iniciales, metadatos, linaje, responsabilidades, acceso y
-evidencias. Cada punto remite a algo ejecutable o verificable en el repositorio.
+Consigna §7.2 punto 7: calidad, quarantine, metadatos, linaje, responsabilidades,
+seguridad y observabilidad. Cada punto remite a algo ejecutable o verificable en
+el repositorio. Versión preliminar: 2.ª entrega (16/11); esta versión suma los
+maestros de dominio, los tres marts nuevos, Q3 a Q5 y el token de solo lectura.
 
 ## 1. Responsabilidades
 
@@ -15,13 +17,13 @@ responde por su contenido, sus reglas y su evidencia.
 | R3 Procesamiento y analítica | Silver, los marts de Gold, `cost_anomaly_mart` | R2 |
 | R4 Serving y reproducibilidad | Tablas de AstraDB, credenciales, notebook de Colab, `src/pipeline.py` | R1 |
 
-El dueño de cada uno de los 25 datasets está en el diccionario de datos.
+El dueño de cada uno de los 39 datasets está en el diccionario de datos.
 
 ## 2. Metadatos
 
 **Catálogo como código.** `src/governance/catalog.py` describe cada dataset
 (zona, ruta, grano, partición, responsable, origen, retención) y cada columna.
-`docs/diccionario_datos.md` se genera desde ahí: 25 datasets, 292 columnas.
+`docs/diccionario_datos.md` se genera desde ahí: 39 datasets, 447 columnas.
 
 **Control automático.** `tests/test_governance.py` arma cada tabla con las mismas
 funciones del pipeline y **falla si alguna columna no tiene descripción** o si el
@@ -43,13 +45,16 @@ descripción de `silver_ts`, el test falla y la nombra.
 **Por dataset.**
 
 ```
-landing/*.csv ──batch_to_bronze──▶ bronze.<fuente> ──silver_job──▶ silver.customers_orgs, silver.resources
-                                                                          │ (join)
-landing/usage_events_stream ──stream_to_bronze──▶ bronze.usage_events ──silver_job──▶ silver.usage_events
-                                     │                                                        │
+landing/*.csv ──batch_to_bronze──▶ bronze.<fuente> ──silver_job──▶ silver.customers_orgs ─┐ (join en todas las Silver)
+                                                                ├─▶ silver.resources       │
+                                                                ├─▶ silver.billing_monthly ─┼─gold_domains_job─▶ gold.revenue_by_org_month ──┐
+                                                                ├─▶ silver.support_tickets ─┼─gold_domains_job─▶ gold.tickets_by_org_date ───┤
+                                                                └─▶ silver.users, silver.marketing_touches (invariantes, D-022)              │
+landing/usage_events_stream ──stream_to_bronze──▶ bronze.usage_events ──silver_job──▶ silver.usage_events ─gold_domains_job─▶ gold.genai_… ┤
+                                     │                                                        │                                             │
                                      └──gold_stream (flujo C)──▶ gold.…_speed                  └──gold_job (flujo D)──▶ gold.org_daily_usage_by_service
-                                                                  │                                     │                 │
-                                                                  └──────────load_cassandra─────────────┴──▶ AstraDB (P1, P2)
+                                                                  │                                     │                 │                 │
+                                                                  └──────────load_cassandra─────────────┴─────────────────┴────────────────┴─▶ AstraDB (Q1 a Q5)
                                                                                                          └──anomalies──▶ gold.cost_anomaly_mart
 ```
 
@@ -76,8 +81,14 @@ algo no cuadra. Ningún registro se descarta en silencio (§8.1, principio 5).
 | | `cost_usd_increment < -0,01` | flag `is_credit_adjustment` | 211 |
 | | `genai_tokens` ⇔ v2 ∧ genai; `org_id` sin dimensión; duplicado | flag + copia | 0 |
 | | **Conservación**: Bronze = Silver + duplicados | detiene el job | 43.200 = 43.200 + 0 |
+| Bronze → Silver (maestros, D-022) | CSAT fuera de 1-5 | CSAT de consumo nulo, flag, copia | 40 |
+| | `last_login < created_at`; `converted` sin `clicked` | flag + copia (invariantes del TP1) | 232; 96 |
+| | `resolved_at < created_at`; `org_id` sin dimensión | flag + copia | 0; 0 |
+| | FX ruidoso en USD; nota de crédito; impuesto con signo opuesto | flag de negocio, sin copia | 160; 13; 13 |
+| | **Conservación**: Bronze = Silver en cada maestro | detiene el job | 240 / 1.000 / 800 / 1.500 |
 | Silver → Gold | **Grano único** y **cuadre** de eventos y costo con Silver | detiene el job | 11.050 claves; USD 147.433,98 |
-| Gold → Cassandra | `COUNT(*)` antes y después de cada carga | evidencia de idempotencia | 11.050 / 12.314, sin cambios |
+| | Marts de dominio (D-023): grano único y cuadre de facturas, revenue, tickets, SLA, CSAT, tokens y costo | detiene el job | 240 / 984 / 848 filas |
+| Gold → Cassandra | `COUNT(*)` antes y después de cada carga | evidencia de idempotencia | 5 tablas sin cambios en la 2.ª carga |
 | Landing | Inmutabilidad (huella SHA-256) | test | sin cambios |
 
 Muestras por regla: `evidence/quarantine_muestras.md`.
@@ -89,17 +100,21 @@ Muestras por regla: `evidence/quarantine_muestras.md`.
 | Landing | todos los jobs | nadie (inmutable; lo verifica un test) |
 | Bronze / Quarantine | jobs de Silver; R2 para auditoría | solo `batch_to_bronze` y `stream_to_bronze` |
 | Silver / Gold | jobs siguientes; analistas (exploración ad hoc) | solo el job que produce cada dataset |
-| AstraDB | consumo (BI, consultas Q1 y Q2) | solo `load_cassandra` |
+| AstraDB | consumo (BI, consultas Q1 a Q5), con token de solo lectura | solo `load_cassandra`, con token de administrador |
 
 - **Credenciales.** Solo por variables de entorno (`config/.env.example`) o Colab
   Secrets. El `.gitignore` excluye `.env`, `*secure-connect*.zip` y `*.pem`.
   `tests/test_governance.py` revisa que ningún archivo versionado contenga un token
   de AstraDB, una clave privada o credenciales de AWS.
-- **Mínimo privilegio en AstraDB.** La carga usa un token *Database Administrator*,
-  porque crea las tablas. El consumo debería usar un token de solo lectura, distinto.
-  Queda en el backlog para la entrega final.
+- **Mínimo privilegio en AstraDB (D-025).** La carga usa un token *Database
+  Administrator*, porque crea las tablas. Las consultas usan otro token, con rol
+  *Read Only User* (`ASTRA_DB_TOKEN_READONLY`). `run_queries` lo verifica en cada
+  corrida: intenta un borrado inocuo y registra la respuesta. Evidencia del 18/11:
+  "Token usado: solo_lectura · ¿puede escribir? no (Unauthorized)"
+  (`evidence/serving/consultas_2026-11-18_194849.md`).
 - **Datos personales.** `users.email` es el único dato personal del dataset. Llega
-  solo a Bronze: Silver, Gold y el serving no lo incluyen.
+  solo a Bronze: `silver.users` lo excluye a propósito (minimización, D-022) y ni
+  Gold ni el serving lo incluyen.
 - **Límite del entorno.** En Colab el lake vive en el disco de la sesión, sin
   permisos por usuario. La matriz de arriba se cumple por construcción del código,
   no por controles del sistema de archivos. En producción, con S3, GCS o ADLS, se
@@ -113,7 +128,9 @@ Cada job escribe `evidence/runs/<job>_<fecha>_<hora>.json` con:
 - duración;
 - en streaming: micro-lotes, tardíos y latencia por lote.
 
-Los 47 tests y la doble ejecución (`evidence/idempotencia.md`) completan la evidencia.
+Además, cada consulta de serving registra su latencia (Q1 a Q5: 37 a 41 ms en AstraDB)
+y el token usado. Los 64 tests y la doble ejecución (`evidence/idempotencia.md`, variación
+0 en 23 tablas) completan la evidencia.
 
 ## 7. Retención
 
