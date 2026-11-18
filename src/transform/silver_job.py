@@ -1,4 +1,4 @@
-"""Job batch Bronze -> Silver (eventos, customers_orgs, resources).
+"""Job batch Bronze -> Silver (eventos, customers_orgs, resources y maestros de dominio).
 
 Recomputa Silver completo desde Bronze y lo sobrescribe: idempotente por
 construcción, como la reconciliación de D-004. A este volumen (43.200 eventos)
@@ -23,6 +23,7 @@ from src.common.config import Settings, load_settings
 from src.common.spark import get_spark
 from src.transform.silver import (conform_events, conform_orgs, conform_resources,
                                   latest_snapshot, split_silver)
+from src.transform.silver_domains import CONFORMERS, quarantine_copies
 
 log = logging.getLogger("silver_job")
 JOB = "silver_job"
@@ -34,6 +35,57 @@ class ConservationError(RuntimeError):
 
 def silver_path(cfg: Settings, entity: str) -> str:
     return f"{cfg.lake}/silver/{entity}"
+
+
+# Silver de dominio: billing particiona por mes (grano del mart P4, 3 particiones);
+# el resto son tablas chicas (≤ 1.500 filas) y van sin particionar, como los
+# maestros de D-005: particionar 1.000 tickets por día daría 115 archivos diminutos.
+DOMAIN_PARTITION = {"billing_monthly": "month"}
+
+
+def run_domains(spark: SparkSession, cfg: Settings) -> dict:
+    """Billing, tickets, users y marketing: conformación, quarantine y conservación."""
+    orgs = spark.read.parquet(silver_path(cfg, "customers_orgs"))
+    report = {}
+    for entity, conform in CONFORMERS.items():
+        bronze = latest_snapshot(spark.read.parquet(f"{cfg.bronze}/{entity}"))
+        silver = conform(bronze, orgs)
+        writer = silver.coalesce(1).write.mode("overwrite")
+        part = DOMAIN_PARTITION.get(entity)
+        if part:
+            writer = (silver.repartition(part).write.mode("overwrite")
+                      .option("partitionOverwriteMode", "static").partitionBy(part))
+        writer.parquet(silver_path(cfg, entity))
+
+        s = spark.read.parquet(silver_path(cfg, entity))
+        # Billing no tiene defectos en este dataset: se escribe igual (vacío),
+        # para que la ruta exista y el conteo se tome del DataFrame, no del disco.
+        q = quarantine_copies(entity, s)
+        q.coalesce(1).write.mode("overwrite") \
+            .option("partitionOverwriteMode", "static").partitionBy("regla") \
+            .parquet(f"{cfg.quarantine}/silver_{entity}")
+
+        n_bronze, n_silver = bronze.count(), s.count()
+        if n_bronze != n_silver:      # ninguna regla saca filas de Silver
+            raise ConservationError(f"{entity}: bronze={n_bronze} != silver={n_silver}")
+        flags = {r["f"]: r["count"] for r in
+                 s.select(F.explode("quality_flags").alias("f")).groupBy("f").count().collect()}
+        report[entity] = {"filas_bronze": n_bronze, "filas_silver": n_silver,
+                          "flags": dict(sorted(flags.items())),
+                          "quarantine_por_regla": {r["regla"]: r["count"] for r in
+                                                   q.groupBy("regla").count().collect()}}
+    b = spark.read.parquet(silver_path(cfg, "billing_monthly"))
+    totals = b.agg(F.sum("net_revenue_usd"), F.sum("total_billed_usd")).first()
+    report["billing_monthly"]["net_revenue_usd"] = round(totals[0], 2)
+    report["billing_monthly"]["total_billed_usd"] = round(totals[1], 2)
+    report["billing_monthly"]["por_moneda"] = {r["currency"]: r["count"] for r in
+                                               b.groupBy("currency").count().collect()}
+    t = spark.read.parquet(silver_path(cfg, "support_tickets"))
+    report["support_tickets"]["por_severidad"] = {r["severity"]: r["count"] for r in
+                                                  t.groupBy("severity").count().collect()}
+    report["support_tickets"]["abiertos"] = t.filter("is_open").count()
+    report["support_tickets"]["sla_breached"] = t.filter("sla_breached").count()
+    return report
 
 
 def run(spark: SparkSession, cfg: Settings) -> dict:
@@ -99,6 +151,7 @@ def run(spark: SparkSession, cfg: Settings) -> dict:
                                     .groupBy("nps_source").count().collect()},
             "resources": spark.read.parquet(silver_path(cfg, "resources")).count(),
         },
+        "dominios": run_domains(spark, cfg),
         "segundos": round(time.time() - t0, 1),
     }
     os.makedirs(f"{cfg.evidence}/runs", exist_ok=True)
@@ -109,6 +162,8 @@ def run(spark: SparkSession, cfg: Settings) -> dict:
     log.info("Silver eventos: %d de %d (dup=%d) · %d particiones · %d con flag %s",
              n_silver, n_bronze, n_dup, e["particiones_event_date_x_service"],
              e["filas_con_algun_flag"], e["flags"])
+    for entity, d in report["dominios"].items():
+        log.info("Silver %s: %d filas · flags %s", entity, d["filas_silver"], d["flags"])
     log.info("Quarantine Silver: %s · Log -> %s", report["quarantine_silver_por_regla"], out)
     return report
 

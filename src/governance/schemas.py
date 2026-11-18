@@ -20,6 +20,7 @@ from src.transform.gold import aggregate_daily_usage
 from src.transform.gold_job import build_mart
 from src.transform.gold_stream import speed_frame
 from src.transform.silver import conform_events, conform_orgs, conform_resources, split_silver
+from src.transform.silver_domains import CONFORMERS, quarantine_copies
 
 TECH = [T.StructField("source_file", T.StringType()), T.StructField("ingest_ts", T.TimestampType()),
         T.StructField("ingest_date", T.DateType())]
@@ -50,6 +51,10 @@ def expected_columns(spark: SparkSession) -> dict:
     silver, quarantine = split_silver(conform_events(bronze_events, orgs))
     cols["silver.usage_events"] = silver.columns
     cols["quarantine.silver_usage_events"] = quarantine.columns
+    for entity, conform in CONFORMERS.items():
+        conformed = conform(bronze[entity], orgs)
+        cols[f"silver.{entity}"] = conformed.columns
+        cols[f"quarantine.silver_{entity}"] = quarantine_copies(entity, conformed).columns
 
     mart = build_mart(silver, datetime(2026, 1, 1))
     cols["gold.org_daily_usage_by_service"] = mart.columns

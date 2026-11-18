@@ -33,7 +33,7 @@ def small_lake(spark, landing, tmp_path_factory):
         shutil.copy(os.path.join(landing, "usage_events_stream", f), dst / "usage_events_stream" / f)
     cfg = load_settings(landing=str(dst), lake=str(tmp / "lake"), evidence=str(tmp / "ev"),
                         checkpoints=str(tmp / "ck"), ingest_date="2026-11-12")
-    run_batch(spark, cfg, ["customers_orgs", "nps_surveys", "resources"])
+    run_batch(spark, cfg)                                    # silver_job necesita las 7 fuentes
     run_stream_bronze(spark, cfg)
     run_silver(spark, cfg)
     report = run_gold(spark, cfg)

@@ -136,7 +136,7 @@ def test_job_completo_sobre_el_dataset_real(spark, landing, tmp_path):
     cfg = load_settings(landing=landing, lake=str(tmp_path / "lake"),
                         evidence=str(tmp_path / "ev"), checkpoints=str(tmp_path / "ck"),
                         ingest_date="2026-11-12")
-    run_batch(spark, cfg, ["customers_orgs", "nps_surveys", "resources"])
+    run_batch(spark, cfg)                                    # las 7 fuentes: Silver de dominio incluida
     run_stream(spark, cfg, max_files=40)                     # 3 lotes de 40 archivos: más rápido
     r1 = run_silver(spark, cfg)
     r2 = run_silver(spark, cfg)                              # idempotente
@@ -145,3 +145,16 @@ def test_job_completo_sobre_el_dataset_real(spark, landing, tmp_path):
                                       "value_nulo": 877}
     assert r1["eventos"]["v1_con_carbon_kg"] == 0
     assert r1["eventos"]["archivos_parquet"] == r1["eventos"]["particiones_event_date_x_service"]
+    # Silver de dominio (D-022): conservación y conteos del perfilado del TP1
+    d = r1["dominios"]
+    assert d == r2["dominios"]
+    assert {e: v["filas_silver"] for e, v in d.items()} == {
+        "billing_monthly": 240, "support_tickets": 1000, "users": 800, "marketing_touches": 1500}
+    assert d["users"]["flags"] == {"last_login_antes_de_created": 232}
+    assert d["marketing_touches"]["flags"] == {"converted_sin_click": 96}
+    assert d["support_tickets"]["flags"] == {"csat_fuera_de_escala": 40}
+    assert (d["support_tickets"]["abiertos"], d["support_tickets"]["sla_breached"]) == (240, 95)
+    assert d["support_tickets"]["por_severidad"]["critical"] == 56
+    assert d["billing_monthly"]["flags"] == {"fx_usd_ruidoso": 160, "impuesto_signo_inconsistente": 13,
+                                             "nota_de_credito": 13}
+    assert d["billing_monthly"]["net_revenue_usd"] == pytest.approx(132074.83, abs=0.01)

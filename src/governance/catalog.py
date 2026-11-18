@@ -116,6 +116,20 @@ COLUMN_DOCS = {
     "direction": "pico o caida; nulo si no es anomalía.",
     "has_credit_adjustment": "El día tuvo créditos (se reportan aparte, no compiten).",
     "method": "Método y umbral aplicados.",
+    # Silver de dominio (D-019, D-022)
+    "fx_applied": "Tipo de cambio aplicado: 1,0 en USD (D-007); el de la fuente en ARS y EUR (D-019).",
+    "credits_usd": "Créditos de la factura en USD (credits × fx_applied).",
+    "taxes_usd": "Impuestos de la factura en USD (taxes × fx_applied).",
+    "net_revenue_usd": "Revenue neto en USD: (subtotal − credits) × fx_applied (D-019).",
+    "total_billed_usd": "Total facturado en USD: (subtotal − credits + taxes) × fx_applied (D-019).",
+    "is_credit_note": "Subtotal negativo: nota de crédito o ajuste (flag, no rechazo).",
+    "ticket_date": "Fecha de apertura del ticket (created_at); fecha del mart de Soporte.",
+    "is_open": "Ticket abierto: resolved_at nulo (nulo semántico).",
+    "resolution_days": "Días entre apertura y resolución; nulo si el ticket sigue abierto.",
+    "csat_raw": "CSAT tal como llega de la fuente, incluso fuera de la escala 1-5 (D-022).",
+    "has_logged_in": "El usuario ingresó al menos una vez (last_login no nulo).",
+    "touch_date": "Fecha de la interacción de marketing (columna timestamp de la fuente).",
+    "record_id": "Clave natural del registro en quarantine (invoice_id, ticket_id, user_id o touch_id).",
     # quarantine
     "entity": "Dataset de origen del registro en quarantine.",
     "regla": "Regla de calidad violada (motivo).",
@@ -181,6 +195,30 @@ DATASETS.update({
         "Quarantine", "quarantine/silver_usage_events", "una regla violada por un evento", R2,
         "src.transform.silver_job", ["bronze.usage_events"], "regla", "6 meses",
         "Copias de auditoría de eventos marcados (siguen en Silver)."),
+    "silver.billing_monthly": _ds(
+        "Silver", "silver/billing_monthly", "una factura", R3, "src.transform.silver_job",
+        ["bronze.billing_monthly", "silver.customers_orgs"], "month", "24 meses",
+        "Facturas con montos normalizados a USD (D-007, D-019).",
+        {"credits": "Créditos en moneda original; nulo resuelto como 0 (D-007)."}),
+    "silver.support_tickets": _ds(
+        "Silver", "silver/support_tickets", "un ticket", R3, "src.transform.silver_job",
+        ["bronze.support_tickets", "silver.customers_orgs"], "sin particionar", "24 meses",
+        "Tickets conformados con estado, tiempo de resolución y CSAT validado (D-022).",
+        {"csat": "CSAT para consumo (escala 1-5); nulo si no se respondió o si estaba "
+                 "fuera de escala (D-022)."}),
+    "silver.users": _ds(
+        "Silver", "silver/users", "un usuario", R3, "src.transform.silver_job",
+        ["bronze.users", "silver.customers_orgs"], "sin particionar", "24 meses",
+        "Usuarios sin email (minimización) con la invariante last_login >= created_at (D-022)."),
+    "silver.marketing_touches": _ds(
+        "Silver", "silver/marketing_touches", "una interacción", R3, "src.transform.silver_job",
+        ["bronze.marketing_touches", "silver.customers_orgs"], "sin particionar", "24 meses",
+        "Interacciones de marketing con la invariante del embudo converted => clicked (D-022)."),
+    **{f"quarantine.silver_{_e}": _ds(
+        "Quarantine", f"quarantine/silver_{_e}", "una regla violada por un registro", R2,
+        "src.transform.silver_job", [f"bronze.{_e}"], "regla", "6 meses",
+        f"Copias de auditoría de registros de {_e} con defectos (siguen en Silver, D-022).")
+       for _e in ["billing_monthly", "support_tickets", "users", "marketing_touches"]},
     "gold.org_daily_usage_by_service": _ds(
         "Gold", "gold/org_daily_usage_by_service", "org_id, usage_date, service", R3,
         "src.transform.gold_job", ["silver.usage_events"], "usage_date", "36 meses",

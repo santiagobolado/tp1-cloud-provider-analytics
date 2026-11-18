@@ -522,8 +522,17 @@ agrega entre particiones.
 - `net_revenue_usd = (subtotal − credits) × fx`
 - `total_billed_usd = (subtotal − credits + taxes) × fx`
 
-`revenue_by_org_month` suma ambas por `(org_id, month)`. La tasa de ARS se aplica
-tal como viene en la fuente.
+Silver de billing guarda además `fx_applied`, `credits_usd` y `taxes_usd`, porque
+la consigna (§7.3) pide que el mart exponga créditos, impuestos y FX aplicado.
+`revenue_by_org_month` suma por `(org_id, month)`. La tasa de ARS se aplica tal
+como viene en la fuente.
+
+**Notas de crédito.** 13 facturas tienen subtotal negativo; se conservan
+(`is_credit_note`, flag `nota_de_credito`) y restan revenue, igual que los costos
+negativos de los eventos. Las 13 traen impuestos *positivos* (21% del valor
+absoluto): se marcan con `impuesto_signo_inconsistente` y no se corrigen, por la
+misma razón que la tasa ARS. Total del dataset: USD 132.074,83 de revenue neto y
+USD 164.293,06 facturados.
 
 **Hallazgo.** La mediana del subtotal es parecida en las tres monedas (USD 658,
 ARS 816, EUR 698): los montos en ARS parecen expresados en otra escala. Con la
@@ -580,6 +589,51 @@ picos inyectados detectados, 130 celdas marcadas) y sus límites (sin etiquetas,
 no hay precisión medible). P7 (soporte ↔ riesgo de abandono) queda como deseable
 (D-5 del backlog), por la señal débil ya documentada: 20 organizaciones sin NPS y
 25% de tickets sin CSAT.
+
+---
+
+## D-022 · Reglas de Silver para billing, tickets, users y marketing
+
+**Fecha**: 2026-11-18 · **Estado**: aceptada · **Ámbito**: calidad · **Implementa**: §9.7 del TP1 (O-5)
+
+**Decisión.** `src/transform/silver_domains.py` conforma los cuatro maestros con
+el criterio de los eventos (D-009): ninguna fila sale de Silver por una regla;
+los defectos se marcan en `quality_flags` y se copian a
+`quarantine/silver_<entidad>`, y los flags de negocio solo se marcan. Control de
+conservación: filas de Bronze = filas de Silver, o el job falla.
+
+| Entidad | Regla | Casos | Tipo |
+|---|---|---|---|
+| billing | `fx_usd_ruidoso` (D-007) | 160 | flag |
+| billing | `nota_de_credito`, `impuesto_signo_inconsistente` (D-019) | 13 y 13 | flag |
+| tickets | `csat_fuera_de_escala` | 40 | quarantine; `csat` de consumo nulo |
+| tickets | `resolved_antes_de_created` | 0 | quarantine (control preventivo) |
+| users | `last_login_antes_de_created` | 232 | quarantine |
+| marketing | `converted_sin_click` | 96 | quarantine |
+| todas | `org_sin_dimension` | 0 | quarantine |
+
+**CSAT: hallazgo nuevo.** El perfilado del TP1 contó los nulos de `csat` (254)
+pero no el rango. Los valores observados van de 0 a 7: 0 (11), 6 (28) y 7 (1)
+quedan fuera de la escala 1–5 de CSAT. Aplicando D-002 (el rango se contrasta
+con la semántica del negocio), la escala válida es 1–5. Como en D-009, se anula
+el campo derivado (`csat`) y no el ticket, que sigue contando para volumen y
+SLA; el valor original queda en `csat_raw`.
+
+**Nulos semánticos.** `resolved_at` (240, tickets abiertos), `csat` (254, sin
+respuesta), `last_login` (139, nunca ingresó) y `credits` (137, sin crédito) no
+son defectos y no generan flags.
+
+**Particiones.** Billing particiona por `month` (3 particiones, grano del mart
+P4). Tickets, users y marketing (≤ 1.500 filas) van sin particionar, como los
+maestros de D-005: 1.000 tickets por día serían 115 archivos diminutos.
+
+**Seguridad.** `users.email` no se promueve a Silver: ningún mart lo usa
+(minimización del dato personal).
+
+**SCD.** La consigna pide SCD "cuando aplique" (§4.2). No aplica: los maestros
+llegan como foto única, sin historia de cambios que versionar. La única serie
+temporal, `nps_surveys`, se resolvió como último valor (D-006). SCD tipo 2 queda
+como deseable (D-6 del backlog).
 
 ---
 
