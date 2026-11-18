@@ -637,6 +637,43 @@ como deseable (D-6 del backlog).
 
 ---
 
+## D-023 · Marts de revenue, tickets y GenAI
+
+**Fecha**: 2026-11-18 · **Estado**: aceptada · **Ámbito**: transformación · **Implementa**: §7.3 de la consigna
+
+**Decisión.** `src/transform/gold_domains.py` construye los tres marts con el
+grano exacto de la consigna; `gold_domains_job.py` los escribe y falla si el
+grano se rompe o si los totales no coinciden con Silver.
+
+| Mart | Grano | Partición | Filas | Control de conservación |
+|---|---|---|---|---|
+| `revenue_by_org_month` | org_id, month | month | 240 | facturas y revenue neto = Silver |
+| `tickets_by_org_date` | org_id, ticket_date, severity | sin particionar | 984 | tickets, SLA breach y respuestas de CSAT = Silver |
+| `genai_tokens_by_org_date` | org_id, usage_date | usage_date | 848 | tokens, eventos y costo = eventos GenAI v2 de Silver |
+
+**Conteos más indicador.** Cada mart guarda sumas y conteos (aditivos) junto al
+indicador derivado que pide la consigna: `sla_breach_rate`, `csat_avg`,
+`cost_per_1k_tokens_usd`. Con los conteos, una re-agregación (por ejemplo, la
+tasa de SLA de todas las severidades en Q3) suma conteos en lugar de promediar
+tasas, que daría un resultado incorrecto.
+
+**Criterios de cada mart.**
+- *Tickets:* la fecha es la de apertura (`created_at`), la única siempre presente;
+  el CSAT promedio divide por las respuestas válidas, no por los tickets.
+- *GenAI:* solo eventos v2 de `genai`, los únicos con tokens; el mart arranca el
+  2025-07-18 (27 organizaciones con uso). El costo estimado es el de esos mismos
+  eventos: el costo GenAI v1, sin tokens, queda en `org_daily_usage_by_service`.
+- *Revenue:* hoy hay una factura por (org, mes), pero el mart suma y no lo asume;
+  si un mes mezclara monedas, `fx_applied` queda nulo en lugar de mostrar una
+  tasa que no describe la conversión.
+
+**Resultados.** 1.000 tickets (56 críticos en 47 días, 95 con SLA incumplido,
+240 abiertos, 706 CSAT válidos); 2.558.359 tokens y USD 22.149,90 en 3.132
+eventos; revenue neto USD 132.074,90 (redondeo a centavos por celda; Silver da
+132.074,83).
+
+---
+
 ## Decisiones abiertas
 
 No quedan decisiones abiertas. A-09 se cerró con D-021.

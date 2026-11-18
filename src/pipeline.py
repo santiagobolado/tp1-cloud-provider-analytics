@@ -25,6 +25,7 @@ STEPS = [
     ("3. Bronze -> Silver", "src.transform.silver_job", []),
     ("4a. Gold, capa rápida (flujo C)", "src.transform.gold_stream", []),
     ("4b. Gold, reconciliación (flujo D)", "src.transform.gold_job", []),
+    ("4c. Gold, marts de revenue, tickets y GenAI", "src.transform.gold_domains_job", []),
     ("5. Anomalías", "src.analytics.anomalies", []),
 ]
 SERVING = [

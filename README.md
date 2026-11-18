@@ -94,6 +94,11 @@ Recomputa Silver completo desde Bronze (idempotente):
 - `data/silver/resources/` — `tags_json` convertido a array
 - `data/quarantine/silver_usage_events/regla=.../` — copias de auditoría de los
   eventos marcados (`value_nulo`, `unit_nulo_con_value`, ...)
+- `data/silver/billing_monthly/month=.../` — facturas normalizadas a USD (D-007, D-019)
+- `data/silver/support_tickets/`, `users/` (sin email) y `marketing_touches/` — con
+  las invariantes entre columnas de D-022 (CSAT 1-5, `last_login >= created_at`,
+  `converted ⟹ clicked`)
+- `data/quarantine/silver_<entidad>/regla=.../` — copias de auditoría de esos maestros
 
 ### 4. Silver → Gold `org_daily_usage_by_service`
 
@@ -106,6 +111,21 @@ python -m src.transform.gold_job      # flujo D: reconciliación, mart oficial
   (org_id, usage_date, service), con `last_reconciled_at`
 - `data/gold/org_daily_usage_by_service_speed/batch_id=.../` — salida del streaming
   (valor provisorio; los eventos tardíos quedan fuera y se cuentan en el log)
+
+### 4c. Silver → Gold: revenue, tickets y GenAI
+
+```bash
+python -m src.transform.gold_domains_job
+```
+
+Tres marts con control de grano y de conservación contra Silver (D-023):
+
+- `data/gold/revenue_by_org_month/month=.../` — revenue en USD por (org, mes), con
+  créditos, impuestos y FX aplicado (P4)
+- `data/gold/tickets_by_org_date/` — tickets, SLA breach rate y CSAT promedio por
+  (org, día de apertura, severidad) (P3)
+- `data/gold/genai_tokens_by_org_date/usage_date=.../` — tokens y costo estimado por
+  (org, día), desde 2025-07-18 (P5)
 
 ### 5. Anomalías de costo → `cost_anomaly_mart`
 

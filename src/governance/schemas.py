@@ -17,6 +17,7 @@ from src.schemas.batch import CORRUPT_COL, SOURCES
 from src.schemas.events import EVENT_SCHEMA_WITH_CORRUPT
 from src.serving.tables import P1_COLS, P2_COLS
 from src.transform.gold import aggregate_daily_usage
+from src.transform.gold_domains import MARTS
 from src.transform.gold_job import build_mart
 from src.transform.gold_stream import speed_frame
 from src.transform.silver import conform_events, conform_orgs, conform_resources, split_silver
@@ -61,6 +62,11 @@ def expected_columns(spark: SparkSession) -> dict:
     cols["gold.org_daily_usage_by_service_speed"] = speed_frame(
         aggregate_daily_usage(silver), 0).columns
     cols["gold.cost_anomaly_mart"] = score_anomalies(mart).columns
+    silver_by_entity = {"usage_events": silver}
+    for entity, conform in CONFORMERS.items():
+        silver_by_entity[entity] = conform(bronze[entity], orgs)
+    for name, (build, entity, _) in MARTS.items():
+        cols[f"gold.{name}"] = build(silver_by_entity[entity]).columns
     cols["cassandra.org_daily_usage_by_service"] = P1_COLS
     cols["cassandra.top_services_by_org_14d"] = P2_COLS
     return cols

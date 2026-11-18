@@ -130,6 +130,19 @@ COLUMN_DOCS = {
     "has_logged_in": "El usuario ingresó al menos una vez (last_login no nulo).",
     "touch_date": "Fecha de la interacción de marketing (columna timestamp de la fuente).",
     "record_id": "Clave natural del registro en quarantine (invoice_id, ticket_id, user_id o touch_id).",
+    # marts de dominio (gold_domains.py)
+    "subtotal_usd": "Subtotal del mes en USD (subtotal × fx_applied).",
+    "invoice_count": "Cantidad de facturas agregadas.",
+    "has_credit_note": "El mes incluye al menos una nota de crédito (subtotal < 0).",
+    "ticket_count": "Tickets abiertos ese día (por fecha de apertura).",
+    "open_count": "De esos tickets, cuántos siguen abiertos (resolved_at nulo).",
+    "sla_breached_count": "De esos tickets, cuántos incumplieron el SLA.",
+    "sla_breach_rate": "sla_breached_count / ticket_count.",
+    "csat_responses": "Tickets con CSAT válido (1-5, D-022).",
+    "csat_sum": "Suma del CSAT válido; permite re-agregar el promedio.",
+    "csat_avg": "CSAT promedio: csat_sum / csat_responses; nulo si no hubo respuestas.",
+    "genai_cost_usd": "Costo estimado en USD de los eventos GenAI que reportan tokens.",
+    "cost_per_1k_tokens_usd": "genai_cost_usd × 1.000 / genai_tokens.",
     # quarantine
     "entity": "Dataset de origen del registro en quarantine.",
     "regla": "Regla de calidad violada (motivo).",
@@ -232,6 +245,22 @@ DATASETS.update({
         "Gold", "gold/cost_anomaly_mart", "org_id, date, service", R3, "src.analytics.anomalies",
         ["gold.org_daily_usage_by_service"], "date", "36 meses",
         "Score y flag de anomalía de costo por celda (D-010, D-016). Responde P6."),
+    "gold.revenue_by_org_month": _ds(
+        "Gold", "gold/revenue_by_org_month", "org_id, month", R3, "src.transform.gold_domains_job",
+        ["silver.billing_monthly"], "month", "36 meses",
+        "Mart FinOps de revenue mensual en USD con créditos, impuestos y FX (D-019). Responde P4.",
+        {"currency": "Moneda(s) de las facturas del mes, separadas por coma.",
+         "fx_applied": "Tipo de cambio aplicado en el mes; nulo si el mes mezcla tasas (D-019)."}),
+    "gold.tickets_by_org_date": _ds(
+        "Gold", "gold/tickets_by_org_date", "org_id, ticket_date, severity", R3,
+        "src.transform.gold_domains_job", ["silver.support_tickets"], "sin particionar", "36 meses",
+        "Mart de Soporte: volumen, SLA y CSAT por día de apertura y severidad. Responde P3."),
+    "gold.genai_tokens_by_org_date": _ds(
+        "Gold", "gold/genai_tokens_by_org_date", "org_id, usage_date", R3,
+        "src.transform.gold_domains_job", ["silver.usage_events"], "usage_date", "36 meses",
+        "Mart de Producto: tokens GenAI y costo estimado por día, desde 2025-07-18 (D-020). "
+        "Responde P5.",
+        {"event_count": "Eventos GenAI v2 agregados (los que reportan tokens)."}),
     "cassandra.org_daily_usage_by_service": _ds(
         "Serving", "cloud_analytics.org_daily_usage_by_service", "org_id, usage_date, service", R4,
         "src.serving.load_cassandra", ["gold.org_daily_usage_by_service",
