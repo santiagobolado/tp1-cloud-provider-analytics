@@ -1,7 +1,7 @@
-"""Carga del mart FinOps a AstraDB / Cassandra (consigna §6.2 "Serving").
+"""Carga de los marts Gold a AstraDB / Cassandra (consigna §7.4 "Serving").
 
-Pasos: crea las tablas si no existen (infra/cql/schema.cql), arma P1 y P2 desde
-Gold y las carga con upsert. Con --with-speed primero carga la capa rápida
+Pasos: crea las tablas si no existen (infra/cql/schema.cql), arma las tablas de
+P1 a P5 desde Gold y las carga con upsert. Con --with-speed primero carga la capa rápida
 (source = 'streaming') y después el mart reconciliado la pisa: es la fusión de
 las dos rutas de D-015, resuelta por el upsert de Cassandra.
 
@@ -24,7 +24,8 @@ from datetime import datetime, timezone
 from src.common.config import load_settings
 from src.common.spark import get_spark
 from src.serving import cassandra_io as cio
-from src.serving.tables import top_services_table, usage_table
+from src.serving.tables import (genai_table, revenue_table, tickets_severity_table,
+                                top_services_table, usage_table)
 
 log = logging.getLogger("load_cassandra")
 JOB = "load_cassandra"
@@ -59,6 +60,13 @@ def main(argv=None) -> int:
             usage_table(gold), "org_daily_usage_by_service", params)
         sent["top_services_by_org_14d"] = cio.load(
             top_services_table(gold), "top_services_by_org_14d", params)
+        g = lambda m: spark.read.parquet(f"{cfg.lake}/gold/{m}")   # noqa: E731
+        sent["tickets_by_severity_date"] = cio.load(
+            tickets_severity_table(g("tickets_by_org_date")), "tickets_by_severity_date", params)
+        sent["revenue_by_org_month"] = cio.load(
+            revenue_table(g("revenue_by_org_month")), "revenue_by_org_month", params)
+        sent["genai_tokens_by_org_date"] = cio.load(
+            genai_table(g("genai_tokens_by_org_date")), "genai_tokens_by_org_date", params)
         after = {t: cio.count_rows(params, t) for t in tables}
     finally:
         spark.stop()

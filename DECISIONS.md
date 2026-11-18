@@ -674,6 +674,59 @@ eventos; revenue neto USD 132.074,90 (redondeo a centavos por celda; Silver da
 
 ---
 
+## D-024 · Modelo de serving de Q3, Q4 y Q5
+
+**Fecha**: 2026-11-18 · **Estado**: aceptada · **Ámbito**: serving · **Extiende**: D-017, D-018
+
+| Consulta | Tabla | Clave | Filas |
+|---|---|---|---|
+| Q3 | `tickets_by_severity_date` | `((severity), ticket_date)`, fecha DESC | 575 |
+| Q4 | `revenue_by_org_month` | `((org_id), month)`, mes DESC | 243 |
+| Q5 | `genai_tokens_by_org_date` | `((org_id), usage_date)`, fecha DESC | 893 |
+
+**Q4 y Q5 se particionan por organización**, como Q1 y Q2: la consigna no la
+nombra, pero el mart tiene grano `(org_id, ...)` y el TP1 formuló P4 "por
+organización". Para responder también la lectura global ("el revenue del mes",
+"los tokens del día") se agrega una partición de total con `org_id = 'all'`,
+la misma solución que D-018 aplicó a Q3 con `severity = 'all'`. Así cada
+lectura es una sola partición y ninguna consulta usa `ALLOW FILTERING`.
+
+**Los totales suman conteos y montos, no promedian.** La tasa de SLA de `'all'`
+es breached / tickets del día; promediar las tasas por severidad daría otro
+número. En Q4, `fx_applied` de `'all'` es nulo: el total mezcla monedas.
+
+**Q3 completa la serie con ceros.** "Evolución por día" incluye los días sin
+tickets críticos (68 de los 115 días no tienen ninguno). La tabla tiene una
+fila por día y severidad en todo el rango, con `ticket_count = 0` y tasa nula.
+Sin eso, el consumidor no distinguiría "0 tickets" de "dato faltante".
+
+**"Últimos 30 días"** se ancla al fin del dataset (2025-08-31), igual que los 14
+días de Q2 (D-017): la ventana es un rango sobre la clave de clustering, no un
+cálculo de Cassandra.
+
+**Resultado para la demo.** En la ventana 2025-08-02 a 2025-08-31 hubo 17
+tickets críticos y ninguno incumplió el SLA: Q3 da tasa 0. La variante Q3b
+(`'all'`) muestra la tasa de todo el soporte.
+
+---
+
+## D-025 · Mínimo privilegio en AstraDB: token de solo lectura para las consultas
+
+**Fecha**: 2026-11-18 · **Estado**: aceptada · **Ámbito**: seguridad · **Cierra**: D-1 del backlog
+
+**Decisión.** Dos tokens con roles distintos, ambos solo por variables de
+entorno o Colab Secrets: `ASTRA_DB_TOKEN` (*Database Administrator*) para
+`load_cassandra`, que crea tablas y escribe, y `ASTRA_DB_TOKEN_READONLY`
+(*Read Only User*) para `run_queries`, que representa al consumo.
+
+**Evidencia.** `run_queries` registra qué token usó e intenta un borrado inocuo
+(una clave que no existe): con el token de solo lectura AstraDB responde
+*Unauthorized*, y eso queda en `evidence/serving/`. Si el token de solo lectura
+no está definido, las consultas usan el de administrador y la evidencia lo dice:
+no se oculta la degradación.
+
+---
+
 ## Decisiones abiertas
 
 No quedan decisiones abiertas. A-09 se cerró con D-021.

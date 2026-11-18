@@ -270,6 +270,31 @@ DATASETS.update({
         "Serving", "cloud_analytics.top_services_by_org_14d", "org_id, as_of_date, rank", R4,
         "src.serving.load_cassandra", ["gold.org_daily_usage_by_service"],
         "PK ((org_id, as_of_date), rank)", "la del mart", "Tabla de serving de P2 (D-017)."),
+    "cassandra.tickets_by_severity_date": _ds(
+        "Serving", "cloud_analytics.tickets_by_severity_date", "severity, ticket_date", R4,
+        "src.serving.load_cassandra", ["gold.tickets_by_org_date"],
+        "PK ((severity), ticket_date)", "la del mart",
+        "Tabla de serving de P3, con la partición de total 'all' y días sin tickets en 0 (D-018).",
+        {"severity": "Severidad del ticket, o 'all' para el total de todas las severidades.",
+         "ticket_count": "Tickets abiertos ese día con esa severidad (0 si no hubo).",
+         "org_count": "Organizaciones con tickets ese día."}),
+    "cassandra.revenue_by_org_month": _ds(
+        "Serving", "cloud_analytics.revenue_by_org_month", "org_id, month", R4,
+        "src.serving.load_cassandra", ["gold.revenue_by_org_month"],
+        "PK ((org_id), month)", "la del mart",
+        "Tabla de serving de P4, con la partición de total org_id = 'all' (D-024).",
+        {"org_id": "Organización, o 'all' para el total de la plataforma.",
+         "org_count": "Organizaciones agregadas en la fila (1, o todas en 'all').",
+         "currency": "Moneda(s) facturadas en el mes, separadas por coma.",
+         "fx_applied": "Tipo de cambio aplicado; nulo si el mes mezcla monedas (siempre en 'all')."}),
+    "cassandra.genai_tokens_by_org_date": _ds(
+        "Serving", "cloud_analytics.genai_tokens_by_org_date", "org_id, usage_date", R4,
+        "src.serving.load_cassandra", ["gold.genai_tokens_by_org_date"],
+        "PK ((org_id), usage_date)", "la del mart",
+        "Tabla de serving de P5, con la partición de total org_id = 'all' (D-024).",
+        {"org_id": "Organización, o 'all' para el total de la plataforma.",
+         "org_count": "Organizaciones con uso de GenAI agregadas en la fila.",
+         "event_count": "Eventos GenAI v2 agregados (los que reportan tokens)."}),
 })
 
 

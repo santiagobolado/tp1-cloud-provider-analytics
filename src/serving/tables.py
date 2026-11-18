@@ -1,12 +1,17 @@
-"""Gold -> DataFrames con la forma exacta de cada tabla de serving (D-017).
+"""Gold -> DataFrames con la forma exacta de cada tabla de serving (D-017, D-024).
 
 Funciones puras: se prueban sin Cassandra.
+
+Las tablas de Q3, Q4 y Q5 agregan una partición de total con la clave `'all'`
+(severidad o organización). Cassandra no agrega entre particiones: el total
+se precalcula en Spark, sumando conteos y montos (no promediando tasas).
 """
 
 from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
 
 WINDOW_DAYS = 14
+ALL = "all"          # clave de la partición de total (D-018, D-024)
 
 P1_COLS = ["org_id", "usage_date", "service", "org_name", "plan_tier", "daily_cost_usd",
            "daily_cost_gross_usd", "credit_adjustment_usd", "requests", "cpu_hours",
@@ -52,3 +57,92 @@ def top_services_table(mart: DataFrame) -> DataFrame:
                .withColumn("window_start", window_start)
                .withColumn("loaded_at", F.current_timestamp())
                .select(*P2_COLS))
+
+
+# ---------------------------------------------------------------------------
+# Q3, Q4 y Q5 (D-018, D-024)
+# ---------------------------------------------------------------------------
+
+P3_COLS = ["severity", "ticket_date", "ticket_count", "open_count", "sla_breached_count",
+           "sla_breach_rate", "csat_responses", "csat_avg", "org_count", "loaded_at"]
+
+P4_COLS = ["org_id", "month", "org_name", "plan_tier", "currency", "fx_applied", "subtotal_usd",
+           "credits_usd", "taxes_usd", "net_revenue_usd", "total_billed_usd", "invoice_count",
+           "has_credit_note", "org_count", "loaded_at"]
+
+P5_COLS = ["org_id", "usage_date", "org_name", "plan_tier", "genai_tokens", "genai_cost_usd",
+           "cost_per_1k_tokens_usd", "event_count", "org_count", "loaded_at"]
+
+
+def _rate(num: str, den: str, digits: int) -> F.Column:
+    return F.round(F.when(F.col(den) > 0, F.col(num) / F.col(den)), digits)
+
+
+def tickets_severity_table(mart: DataFrame) -> DataFrame:
+    """Q3: una fila por (severidad, día) y por ('all', día), con días sin tickets en 0.
+
+    La serie se completa con ceros para todo el rango del dataset: "evolución
+    por día" incluye los días sin tickets críticos (son 47 de 115 con alguno).
+    """
+    sums = [F.sum(c).alias(c) for c in
+            ("ticket_count", "open_count", "sla_breached_count", "csat_responses", "csat_sum")]
+    by_sev = mart.groupBy("severity", "ticket_date").agg(
+        *sums, F.countDistinct("org_id").alias("org_count"))
+    total = (mart.groupBy("ticket_date")
+             .agg(*sums, F.countDistinct("org_id").alias("org_count"))
+             .withColumn("severity", F.lit(ALL)))
+    lo, hi = mart.agg(F.min("ticket_date"), F.max("ticket_date")).first()
+    days = mart.sparkSession.sql(
+        f"SELECT explode(sequence(DATE'{lo}', DATE'{hi}')) AS ticket_date")
+    sevs = mart.select("severity").distinct().union(mart.sparkSession.createDataFrame([(ALL,)], "severity string"))
+    counts = ["ticket_count", "open_count", "sla_breached_count", "csat_responses", "org_count"]
+    return (sevs.crossJoin(days)
+            .join(by_sev.unionByName(total), ["severity", "ticket_date"], "left")
+            .fillna(0, subset=counts)
+            .withColumn("sla_breach_rate", _rate("sla_breached_count", "ticket_count", 4))
+            .withColumn("csat_avg", _rate("csat_sum", "csat_responses", 2))
+            .withColumn("loaded_at", F.current_timestamp())
+            .select(*[F.col(c).cast("int") if c in counts else F.col(c) for c in P3_COLS]))
+
+
+def revenue_table(mart: DataFrame) -> DataFrame:
+    """Q4: revenue por (org, mes) más el total de la plataforma (org_id = 'all')."""
+    money = ["subtotal_usd", "credits_usd", "taxes_usd", "net_revenue_usd", "total_billed_usd"]
+    orgs = mart.withColumn("org_count", F.lit(1))
+    total = (mart.groupBy("month")
+             .agg(*[F.round(F.sum(m), 2).alias(m) for m in money],
+                  F.sum("invoice_count").alias("invoice_count"),
+                  F.max(F.col("has_credit_note").cast("int")).cast("boolean").alias("has_credit_note"),
+                  F.array_join(F.array_sort(F.array_distinct(F.flatten(
+                      F.collect_list(F.split("currency", ","))))), ",").alias("currency"),
+                  F.countDistinct("org_id").alias("org_count"))
+             .withColumn("org_id", F.lit(ALL))
+             .withColumn("org_name", F.lit("Todas las organizaciones"))
+             .withColumn("plan_tier", F.lit(None).cast("string"))
+             .withColumn("fx_applied", F.lit(None).cast("double")))  # mezcla de monedas
+    return (orgs.unionByName(total, allowMissingColumns=True)
+            .withColumn("invoice_count", F.col("invoice_count").cast("int"))
+            .withColumn("org_count", F.col("org_count").cast("int"))
+            .withColumn("loaded_at", F.current_timestamp())
+            .select(*P4_COLS))
+
+
+def genai_table(mart: DataFrame) -> DataFrame:
+    """Q5: tokens y costo por (org, día) más el total diario (org_id = 'all')."""
+    orgs = mart.withColumn("org_count", F.lit(1))
+    total = (mart.groupBy("usage_date")
+             .agg(F.sum("genai_tokens").alias("genai_tokens"),
+                  F.round(F.sum("genai_cost_usd"), 4).alias("genai_cost_usd"),
+                  F.sum("event_count").alias("event_count"),
+                  F.countDistinct("org_id").alias("org_count"))
+             .withColumn("cost_per_1k_tokens_usd",
+                         F.round(F.col("genai_cost_usd") * 1000 / F.col("genai_tokens"), 6))
+             .withColumn("org_id", F.lit(ALL))
+             .withColumn("org_name", F.lit("Todas las organizaciones"))
+             .withColumn("plan_tier", F.lit(None).cast("string")))
+    return (orgs.unionByName(total)
+            .withColumn("genai_tokens", F.col("genai_tokens").cast("long"))
+            .withColumn("event_count", F.col("event_count").cast("int"))
+            .withColumn("org_count", F.col("org_count").cast("int"))
+            .withColumn("loaded_at", F.current_timestamp())
+            .select(*P5_COLS))

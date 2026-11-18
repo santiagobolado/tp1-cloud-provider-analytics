@@ -47,3 +47,68 @@ CREATE TABLE IF NOT EXISTS top_services_by_org_14d (
     loaded_at       timestamp,
     PRIMARY KEY ((org_id, as_of_date), rank)
 ) WITH CLUSTERING ORDER BY (rank ASC);
+
+-- P3 · Evolución de tickets críticos y tasa de SLA breach por día, últimos 30 días (D-018).
+--   La consulta no menciona organización: la partición es la severidad.
+--   Partición: severity     -> una sola partición responde la serie ('critical' o 'all').
+--   Clustering: ticket_date -> los 30 días son un corte contiguo, del más reciente al más viejo.
+--   'all' es una partición precalculada en Spark con todas las severidades: Cassandra
+--   no agrega entre particiones. La serie viene completa: los días sin tickets están en 0.
+--   Tamaño: 115 días por partición, 5 particiones.
+CREATE TABLE IF NOT EXISTS tickets_by_severity_date (
+    severity           text,
+    ticket_date        date,
+    ticket_count       int,
+    open_count         int,
+    sla_breached_count int,
+    sla_breach_rate    double,
+    csat_responses     int,
+    csat_avg           double,
+    org_count          int,
+    loaded_at          timestamp,
+    PRIMARY KEY ((severity), ticket_date)
+) WITH CLUSTERING ORDER BY (ticket_date DESC);
+
+-- P4 · Revenue mensual con créditos e impuestos aplicados, normalizado a USD (D-019, D-024).
+--   Partición: org_id -> el revenue se consulta por cliente; org_id = 'all' es el total
+--              de la plataforma, precalculado (misma idea que 'all' en P3).
+--   Clustering: month -> los meses de una organización, del más reciente al más viejo.
+--   Tamaño: 3 filas por partición con este dataset (12 por año).
+CREATE TABLE IF NOT EXISTS revenue_by_org_month (
+    org_id           text,
+    month            date,
+    org_name         text,
+    plan_tier        text,
+    currency         text,
+    fx_applied       double,
+    subtotal_usd     double,
+    credits_usd      double,
+    taxes_usd        double,
+    net_revenue_usd  double,
+    total_billed_usd double,
+    invoice_count    int,
+    has_credit_note  boolean,
+    org_count        int,
+    loaded_at        timestamp,
+    PRIMARY KEY ((org_id), month)
+) WITH CLUSTERING ORDER BY (month DESC);
+
+-- P5 · Tokens GenAI y costo estimado por día, cuando existan (D-020, D-024).
+--   Partición: org_id -> serie diaria de una organización; 'all' = total de la plataforma.
+--   Clustering: usage_date -> rango de fechas como corte contiguo.
+--   "Cuando existan": solo hay filas desde 2025-07-18 (eventos v2); una organización
+--   sin uso de GenAI no tiene partición, y la consulta devuelve 0 filas.
+--   Tamaño: ≤ 45 filas por partición con este dataset.
+CREATE TABLE IF NOT EXISTS genai_tokens_by_org_date (
+    org_id                 text,
+    usage_date             date,
+    org_name               text,
+    plan_tier              text,
+    genai_tokens           bigint,
+    genai_cost_usd         double,
+    cost_per_1k_tokens_usd double,
+    event_count            int,
+    org_count              int,
+    loaded_at              timestamp,
+    PRIMARY KEY ((org_id), usage_date)
+) WITH CLUSTERING ORDER BY (usage_date DESC);

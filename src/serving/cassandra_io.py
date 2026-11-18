@@ -11,7 +11,13 @@ upsert por clave primaria, así que re-cargar no duplica.
 
 Credenciales SOLO por variables de entorno (nunca en el repo):
     AstraDB:  ASTRA_DB_BUNDLE_PATH, ASTRA_DB_TOKEN   (ASTRA_DB_KEYSPACE opcional)
+              ASTRA_DB_TOKEN_READONLY                 (consultas; mínimo privilegio)
     Local:    CASSANDRA_HOST                          (plan alternativo, G-02)
+
+Mínimo privilegio (D-025): la carga crea tablas y escribe, así que usa el token
+de administrador (ASTRA_DB_TOKEN). Las consultas solo leen y usan un token con
+rol de solo lectura (ASTRA_DB_TOKEN_READONLY). Si ese token no está definido,
+las consultas caen al de administrador y lo dejan registrado en la evidencia.
 """
 
 import os
@@ -25,18 +31,26 @@ class ServingConfigError(RuntimeError):
     pass
 
 
-def connection_params() -> dict:
-    """Parámetros serializables (viajan a los workers de Spark)."""
+def connection_params(read_only: bool = False) -> dict:
+    """Parámetros serializables (viajan a los workers de Spark).
+
+    read_only=True elige el token de solo lectura si existe (consultas, D-025).
+    `token_role` queda en los parámetros para que la evidencia diga cuál se usó.
+    """
     keyspace = os.environ.get("ASTRA_DB_KEYSPACE", DEFAULT_KEYSPACE)
     bundle, token = os.environ.get("ASTRA_DB_BUNDLE_PATH"), os.environ.get("ASTRA_DB_TOKEN")
+    ro_token = os.environ.get("ASTRA_DB_TOKEN_READONLY")
     host = os.environ.get("CASSANDRA_HOST")
-    if bundle and token:
+    if bundle and (token or (read_only and ro_token)):
         if not os.path.isfile(bundle):
             raise ServingConfigError(f"No existe el Secure Connect Bundle: {bundle}")
-        return {"mode": "astra", "bundle": os.path.abspath(bundle), "token": token,
+        use_ro = read_only and bool(ro_token)
+        return {"mode": "astra", "bundle": os.path.abspath(bundle),
+                "token": ro_token if use_ro else token,
+                "token_role": "solo_lectura" if use_ro else "administrador",
                 "keyspace": keyspace}
     if host:
-        return {"mode": "local", "host": host, "keyspace": keyspace}
+        return {"mode": "local", "host": host, "keyspace": keyspace, "token_role": "sin_auth"}
     raise ServingConfigError(
         "Faltan credenciales. Definí ASTRA_DB_BUNDLE_PATH y ASTRA_DB_TOKEN "
         "(o CASSANDRA_HOST para Cassandra local). Ver config/.env.example.")
@@ -114,3 +128,19 @@ def count_rows(params: dict, table: str) -> int:
         return session.execute(f"SELECT COUNT(*) FROM {table}", timeout=60).one()[0]
     finally:
         cluster.shutdown()
+
+
+def can_write(session) -> bool:
+    """¿La sesión puede escribir? Prueba de mínimo privilegio para la evidencia.
+
+    Borra una clave que no existe: si el token tuviera permisos, no cambia
+    ningún dato. Con un token de solo lectura, AstraDB responde Unauthorized.
+    """
+    try:
+        session.execute("DELETE FROM revenue_by_org_month WHERE org_id = '__readonly_check__'")
+        return True
+    except Exception as exc:                  # el driver no siempre tipa el error de permisos
+        if "unauthorized" in type(exc).__name__.lower() or "permission" in str(exc).lower() \
+                or "unauthorized" in str(exc).lower():
+            return False
+        raise

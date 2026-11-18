@@ -36,7 +36,7 @@ def titled_queries() -> list:
 def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     try:
-        params = cio.connection_params()
+        params = cio.connection_params(read_only=True)
     except cio.ServingConfigError as exc:
         log.error("%s", exc)
         return 1
@@ -45,6 +45,11 @@ def main() -> int:
     lines = [f"# Consultas CQL sobre {params['mode']} · keyspace `{params['keyspace']}`",
              f"\nEjecutado: {datetime.now(timezone.utc).isoformat(timespec='seconds')}\n"]
     try:
+        # Mínimo privilegio (D-025): qué token se usó y si puede escribir.
+        writable = cio.can_write(session) if params["mode"] == "astra" else None
+        log.info("Token: %s · puede escribir: %s", params["token_role"], writable)
+        lines += [f"**Token usado:** {params['token_role']} · **¿puede escribir?** "
+                  f"{'sí' if writable else 'no (Unauthorized)' if writable is False else 'n/a'}", ""]
         for title, cql in titled_queries():
             session.execute(cql)                                  # calentamiento
             t0 = time.perf_counter()

@@ -144,10 +144,22 @@ Secure Connect Bundle. Credenciales solo por variables de entorno:
 
 ```bash
 export ASTRA_DB_BUNDLE_PATH=/ruta/secure-connect-xxx.zip
-export ASTRA_DB_TOKEN=AstraCS:...
-python -m src.serving.load_cassandra --with-speed   # crea tablas y carga P1 y P2
-python -m src.serving.run_queries                   # Q1 y Q2 -> evidence/serving/
+export ASTRA_DB_TOKEN=AstraCS:...             # rol Database Administrator (carga)
+export ASTRA_DB_TOKEN_READONLY=AstraCS:...    # rol Read Only User (consultas, D-025)
+python -m src.serving.load_cassandra --with-speed   # crea las 5 tablas y las carga
+python -m src.serving.run_queries                   # Q1 a Q5 -> evidence/serving/
 ```
+
+| Consulta (§7.4) | Tabla | Clave |
+|---|---|---|
+| Q1 costos y requests diarios | `org_daily_usage_by_service` | `((org_id), usage_date, service)` |
+| Q2 Top-N servicios en 14 días | `top_services_by_org_14d` | `((org_id, as_of_date), rank)` |
+| Q3 tickets críticos y SLA, 30 días | `tickets_by_severity_date` | `((severity), ticket_date)` |
+| Q4 revenue mensual en USD | `revenue_by_org_month` | `((org_id), month)` |
+| Q5 tokens GenAI y costo por día | `genai_tokens_by_org_date` | `((org_id), usage_date)` |
+
+Q3, Q4 y Q5 tienen además una partición de total (`'all'`), precalculada en Spark
+(D-018, D-024).
 
 Tablas y consultas en `infra/cql/`. Sin AstraDB: `CASSANDRA_HOST=localhost` contra
 una Cassandra local.

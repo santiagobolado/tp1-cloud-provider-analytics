@@ -15,7 +15,7 @@ from src.ingest.batch_to_bronze import QUARANTINE_COLS
 from src.ingest.stream_to_bronze import BRONZE_COLS, quarantine_stream
 from src.schemas.batch import CORRUPT_COL, SOURCES
 from src.schemas.events import EVENT_SCHEMA_WITH_CORRUPT
-from src.serving.tables import P1_COLS, P2_COLS
+from src.serving.tables import P1_COLS, P2_COLS, P3_COLS, P4_COLS, P5_COLS
 from src.transform.gold import aggregate_daily_usage
 from src.transform.gold_domains import MARTS
 from src.transform.gold_job import build_mart
@@ -69,4 +69,7 @@ def expected_columns(spark: SparkSession) -> dict:
         cols[f"gold.{name}"] = build(silver_by_entity[entity]).columns
     cols["cassandra.org_daily_usage_by_service"] = P1_COLS
     cols["cassandra.top_services_by_org_14d"] = P2_COLS
+    cols["cassandra.tickets_by_severity_date"] = P3_COLS
+    cols["cassandra.revenue_by_org_month"] = P4_COLS
+    cols["cassandra.genai_tokens_by_org_date"] = P5_COLS
     return cols
