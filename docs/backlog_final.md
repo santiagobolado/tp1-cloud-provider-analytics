@@ -1,9 +1,10 @@
-# Backlog final · MVP integrado (07/12/2026, 21:30)
+# Backlog final · MVP integrado (envío anticipado: lunes 23/11/2026)
 
 Consigna §6.2 y §6.6: priorizar el trabajo restante en obligatorio, deseable y
-fuera de alcance. **Regla de congelamiento:** lo deseable se empieza solo con lo
-obligatorio del mismo eje terminado, y nada deseable se toca después del **30/11**.
-Desde esa fecha, solo integración, pruebas y defensa.
+fuera de alcance. La consigna fija el 07/12 a las 21:30; con el profesor se
+acordó enviar la entrega final el **lunes 23/11**. **Regla de congelamiento:** no
+se hace nada deseable antes del envío (C-08). Desde el **sábado 21/11**, solo
+integración, pruebas, documentación y defensa.
 
 Base: checklist 9.3 de la consigna, consultas obligatorias §7.4, marts §7.3 y lo
 comprometido en el diseño del TP1. Los responsables son los roles del TP1 (§12.1).
@@ -58,8 +59,14 @@ Declarado desde el TP1 (§2.5, §12.6) o surgido en esta entrega. Se documenta c
 
 ## Calendario
 
-| Semana | Foco |
+Recalendarizado el 17/11 para el envío del 23/11.
+
+| Día | Foco |
 |---|---|
-| 17–23/11 | O-10, O-1, O-2, O-3, O-5 |
-| 24–30/11 | O-4, O-6, O-7, O-8 · deseables D-1 a D-3 si sobra tiempo · **30/11: congelamiento** |
-| 01–07/12 | O-9, O-11, O-12, O-13 · ensayo de la defensa · entrega el 07/12 a las 21:30 |
+| Mar 17 | O-6 (D-021), O-10 (feedback de la 2.ª entrega), decisiones D-018 a D-020 |
+| Mié 18 | Silver de billing y de tickets (base de O-1 y O-2); reanudar AstraDB |
+| Jue 19 | O-1, O-2, O-3 (marts Gold) · O-7 en paralelo |
+| Vie 20 | O-4 (Q3, Q4, Q5 en AstraDB) · O-8 (pipeline y Colab desde entorno limpio) |
+| Sáb 21 | O-9 (diagrama v3, documento técnico, README) · **congelamiento del código** |
+| Dom 22 | O-11, O-12, O-13 (presentación, guion del video, plan B, ensayo) |
+| Lun 23 | Revisión final y envío |

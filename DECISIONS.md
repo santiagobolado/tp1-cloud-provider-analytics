@@ -485,8 +485,104 @@ AstraDB. Credenciales solo por variables de entorno y Colab Secrets.
 
 ---
 
+## D-018 · Modelo de Q3: una partición global por severidad
+
+**Fecha**: 2026-11-17 · **Estado**: aceptada · **Ámbito**: serving · **Revisa**: §8.9 del TP1
+
+**Contexto.** La consulta 3 de la consigna (§7.4) pide la evolución de tickets
+críticos y de la tasa de SLA breach por día durante los últimos 30 días; no
+menciona organización. El dataset tiene 1.000 tickets entre 2025-05-09 y
+2025-08-31: 56 críticos repartidos en 47 días (máximo 3 por día) y una mediana de
+12 tickets por organización en todo el período.
+
+**Decisión.** Tabla de serving con clave `((severity), ticket_date)`, `ticket_date
+DESC`. Además de una fila por severidad, se carga una fila con `severity = 'all'`
+que agrega todas. La consulta 3 lee una sola partición (`severity = 'critical'` o
+`'all'`) con un rango de 30 fechas. El mart Gold `tickets_by_org_date` conserva el
+grano `(org_id, fecha, severidad)`; la tabla de serving es una vista agregada de
+ese mart.
+
+**Alternativa descartada.** Partición por `org_id`, como en el TP1 §8.9: responde
+"por organización", que la consulta no pide, y deja series casi vacías (una
+organización tiene en promedio menos de un ticket crítico en 30 días).
+
+**Consecuencias.** Las particiones son pocas y chicas (≤ 115 filas cada una con
+este dataset). A escala, se agregaría un bucket mensual a la partición para
+acotar su tamaño. La fila `'all'` se precalcula en Spark porque Cassandra no
+agrega entre particiones.
+
+---
+
+## D-019 · Revenue en USD: fórmula y limitación de la tasa ARS
+
+**Fecha**: 2026-11-17 · **Estado**: aceptada · **Ámbito**: transformación · **Extiende**: D-007
+
+**Decisión.** Por factura, con `credits` nulo = 0 y `fx = 1,0` en USD (D-007):
+
+- `net_revenue_usd = (subtotal − credits) × fx`
+- `total_billed_usd = (subtotal − credits + taxes) × fx`
+
+`revenue_by_org_month` suma ambas por `(org_id, month)`. La tasa de ARS se aplica
+tal como viene en la fuente.
+
+**Hallazgo.** La mediana del subtotal es parecida en las tres monedas (USD 658,
+ARS 816, EUR 698): los montos en ARS parecen expresados en otra escala. Con la
+tasa de la fuente (mediana 0,0015), una factura en ARS queda en ~USD 1,19. Las 51
+facturas en ARS son el 21% de las facturas, pero aportan el 0,05% del revenue
+neto en USD. Afecta a 41 de las 80 organizaciones: 40 alternan ARS con otra
+moneda, así que el mes facturado en ARS aparece como una caída abrupta del
+revenue.
+
+**Alternativas descartadas.**
+- *Corregir la tasa o el monto* (por ejemplo, tratar el subtotal ARS como USD):
+  no hay evidencia en el dataset de cuál de los dos campos está mal; corregirlo
+  sería inventar el dato.
+- *Excluir las facturas en ARS*: pierde 51 facturas y deja sin revenue a una
+  organización.
+
+**Consecuencias.** La limitación se declara en el README y en la documentación
+técnica. No se agrega un flag nuevo: la condición coincide con `currency = 'ARS'`,
+que ya está en el mart. `fx_usd_ruidoso` mantiene su sentido de D-007 (tasa
+distinta de 1 en facturas USD).
+
+---
+
+## D-020 · El mart de GenAI se calcula solo en batch desde Silver
+
+**Fecha**: 2026-11-17 · **Estado**: aceptada · **Ámbito**: transformación · **Revisa**: §7.3 del TP1
+
+**Contexto.** El TP1 asignó a P5 la ruta "streaming + reconciliación", igual que
+P1. Silver de eventos ya tiene `genai_tokens` y `cost_usd`: 4.158 eventos de
+`genai`, 3.132 con `schema_version = 2` (todos con tokens) y 1.026 v1 sin tokens.
+Los tokens existen desde 2025-07-18.
+
+**Decisión.** `genai_tokens_by_org_date` se calcula en batch desde Silver, con
+grano `(org_id, fecha)`, solo con eventos v2 de `genai`. Los eventos v1 no se
+imputan: el campo no existía (nulo semántico).
+
+**Por qué.** La capa rápida ya está demostrada con P1 (D-015). Duplicarla para
+P5 no agrega un concepto nuevo y suma un segundo stream, con su checkpoint y su
+fusión. La consulta 5 es diaria: la latencia del batch alcanza.
+
+**Consecuencias.** El costo de GenAI de la capa rápida queda dentro de
+`org_daily_usage_by_service` (servicio `genai`); el mart de tokens se actualiza
+con la corrida batch.
+
+---
+
+## D-021 · Cierre de A-09: el componente analítico es `cost_anomaly_mart`
+
+**Fecha**: 2026-11-17 · **Estado**: aceptada · **Ámbito**: analítica · **Cierra**: A-09
+
+**Decisión.** El componente analítico exigido por la consigna (§7.2, punto 6) es
+la detección de anomalías de costo de D-010 y D-016, con sus métricas (54 de 54
+picos inyectados detectados, 130 celdas marcadas) y sus límites (sin etiquetas,
+no hay precisión medible). P7 (soporte ↔ riesgo de abandono) queda como deseable
+(D-5 del backlog), por la señal débil ya documentada: 20 organizaciones sin NPS y
+25% de tickets sin CSAT.
+
+---
+
 ## Decisiones abiertas
 
-| # | Tema | Bloquea | Fecha objetivo |
-|---|---|---|---|
-| A-09 | Alcance final del componente analítico o de ML | P7 | tras la 2.ª entrega |
+No quedan decisiones abiertas. A-09 se cerró con D-021.
