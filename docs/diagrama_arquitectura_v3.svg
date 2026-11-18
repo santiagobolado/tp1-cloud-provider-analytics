@@ -1,0 +1,213 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 800" width="1180" height="800" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#434d6b"/>
+    </marker>
+    <marker id="ay" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b8860b"/>
+    </marker>
+    <style>
+      .col{fill:#f6f7fb;stroke:#c9cedb;stroke-width:1}
+      .lake{fill:#eef4ff;stroke:#7d98c4;stroke-width:1}
+      .box{fill:#fff;stroke:#c9cedb;stroke-width:1}
+      .zone{fill:#fff;stroke:#7d98c4;stroke-width:1}
+      .store{fill:#fff6e6;stroke:#b8860b;stroke-width:1}
+      .green{fill:#eef8ef;stroke:#3b8a4a;stroke-width:1}
+      .pend{fill:#f4f4f4;stroke:#9a9a9a;stroke-width:1;stroke-dasharray:5 4}
+      .h{font-size:13px;font-weight:700;fill:#434d6b;text-anchor:middle;letter-spacing:.3px}
+      .hl{font-size:13px;font-weight:700;fill:#3b5a8c;text-anchor:middle}
+      .t{font-size:12px;font-weight:700;fill:#1f2433}
+      .tc{font-size:12px;font-weight:700;fill:#1f2433;text-anchor:middle}
+      .s{font-size:10.5px;fill:#3d4352}
+      .m{font-size:10px;fill:#3d4352;font-family:Menlo,Consolas,monospace}
+      .i{font-size:10px;fill:#7a8194;font-style:italic}
+      .ty{font-size:12px;font-weight:700;fill:#8a6508}
+      .tg{font-size:12px;font-weight:700;fill:#2d6b39}
+      .tp{font-size:12px;font-weight:700;fill:#6b6b6b}
+      .sp{font-size:10.5px;fill:#6b6b6b}
+      .ln{stroke:#434d6b;stroke-width:1.6;fill:none}
+      .ly{stroke:#b8860b;stroke-width:1.4;fill:none;stroke-dasharray:5 4}
+    </style>
+  </defs>
+
+  <rect width="1180" height="800" fill="#fff"/>
+  <text x="20" y="32" font-size="20" font-weight="700" fill="#1f2433">Cloud Provider Analytics — Arquitectura v3 · final</text>
+  <text x="20" y="52" font-size="12" fill="#5d6477">Patrón híbrido (D-004): streaming de eventos + batch de maestros + reconciliación · 5 marts · Q1 a Q5 en AstraDB · verificado en Colab · 2026-11-18</text>
+
+  <rect class="col" x="20" y="70" width="172" height="420" rx="6"/>
+  <text class="h" x="106" y="90">LANDING</text>
+  <text class="i" x="106" y="104" text-anchor="middle">crudo inmutable · data/landing</text>
+  <rect class="col" x="204" y="70" width="164" height="420" rx="6"/>
+  <text class="h" x="286" y="90">INGESTA</text>
+  <rect class="lake" x="380" y="70" width="380" height="420" rx="6"/>
+  <text class="hl" x="570" y="90">DATA LAKE · Parquet particionado</text>
+  <rect class="col" x="772" y="70" width="198" height="420" rx="6"/>
+  <text class="h" x="871" y="90">SERVING</text>
+  <rect class="col" x="982" y="70" width="178" height="420" rx="6"/>
+  <text class="h" x="1071" y="90">CONSUMO</text>
+
+  <rect class="box" x="32" y="114" width="148" height="150" rx="4"/>
+  <text class="tc" x="106" y="132">Maestros y hechos</text>
+  <text class="s" x="42" y="150">customers_orgs · users</text>
+  <text class="s" x="42" y="164">resources · support_tickets</text>
+  <text class="s" x="42" y="178">marketing_touches</text>
+  <text class="s" x="42" y="192">nps_surveys</text>
+  <text class="s" x="42" y="206">billing_monthly</text>
+  <text class="i" x="42" y="228">7 CSV · 4.112 filas</text>
+  <text class="i" x="42" y="242">ruta batch diaria / mensual</text>
+
+  <rect class="box" x="32" y="276" width="148" height="150" rx="4"/>
+  <text class="tc" x="106" y="294">Eventos de uso</text>
+  <text class="m" x="42" y="312">usage_events_stream/</text>
+  <text class="m" x="42" y="325">*.jsonl</text>
+  <text class="s" x="42" y="344">120 archivos</text>
+  <text class="s" x="42" y="358">43.200 eventos · v1 y v2</text>
+  <text class="i" x="42" y="378">cada archivo cubre</text>
+  <text class="i" x="42" y="391">59–60 días, sin orden</text>
+  <text class="i" x="42" y="404">(D-012)</text>
+
+  <rect class="box" x="216" y="114" width="140" height="150" rx="4"/>
+  <text class="tc" x="286" y="132">Batch</text>
+  <text class="m" x="226" y="149">batch_to_bronze</text>
+  <text class="s" x="226" y="166">esquema explícito</text>
+  <text class="s" x="226" y="180">dedupe por clave natural</text>
+  <text class="s" x="226" y="194">overwrite dinámico</text>
+  <text class="s" x="226" y="208">por ingest_date</text>
+  <text class="i" x="226" y="228">D-011</text>
+
+  <rect class="box" x="216" y="276" width="140" height="150" rx="4"/>
+  <text class="tc" x="286" y="294">Streaming</text>
+  <text class="m" x="226" y="311">stream_to_bronze</text>
+  <text class="s" x="226" y="328">1 archivo / micro-lote</text>
+  <text class="s" x="226" y="342">watermark 7 d</text>
+  <text class="s" x="226" y="356">sobre ingest_ts</text>
+  <text class="s" x="226" y="370">dedupe por event_id</text>
+  <text class="s" x="226" y="384">checkpoint</text>
+  <text class="i" x="226" y="404">D-013 · 0 perdidos</text>
+
+  <rect class="zone" x="392" y="104" width="356" height="56" rx="4"/>
+  <text class="t" x="404" y="122">BRONZE</text>
+  <text class="i" x="736" y="122" text-anchor="end">partición: ingest_date</text>
+  <text class="s" x="404" y="140">8 tablas · mismo grano que la fuente · tipado explícito</text>
+  <text class="s" x="404" y="154">source_file · ingest_ts · 43.200 eventos · 0 rechazos</text>
+
+  <rect class="zone" x="392" y="168" width="356" height="98" rx="4"/>
+  <text class="t" x="404" y="186">SILVER</text>
+  <text class="i" x="736" y="186" text-anchor="end">event_date · service · month</text>
+  <text class="s" x="404" y="203">usage_events: cast con fallback · v1/v2 · join org · 6 features</text>
+  <text class="s" x="404" y="217">customers_orgs (NPS, D-006) · resources (tags)</text>
+  <text class="s" x="404" y="231">billing en USD (D-019) · tickets (CSAT 1-5) · users (sin email)</text>
+  <text class="s" x="404" y="245">marketing · invariantes entre columnas · 0 filas descartadas</text>
+  <text class="i" x="404" y="260">D-009 · D-014 · D-022</text>
+
+  <rect class="zone" x="392" y="274" width="356" height="204" rx="4"/>
+  <text class="t" x="404" y="292">GOLD</text>
+  <text class="i" x="736" y="292" text-anchor="end">grano único y cuadre con Silver</text>
+  <text class="m" x="404" y="311">org_daily_usage_by_service</text>
+  <text class="s" x="404" y="325">FinOps · oficial · flujo D (reconciliación) · 11.050 filas</text>
+  <text class="m" x="404" y="342">org_daily_usage_by_service_speed</text>
+  <text class="s" x="404" y="356">provisorio · flujo C (streaming) · watermark 7 d en event_ts</text>
+  <text class="m" x="404" y="373">cost_anomaly_mart</text>
+  <text class="s" x="404" y="387">analítica · MAD por serie · 130 anomalías · 54/54 picos</text>
+  <text class="m" x="404" y="404">revenue_by_org_month</text>
+  <text class="s" x="560" y="404">FinOps · org × mes · 240</text>
+  <text class="m" x="404" y="421">tickets_by_org_date</text>
+  <text class="s" x="560" y="421">Soporte · org × día × severidad · 984</text>
+  <text class="m" x="404" y="438">genai_tokens_by_org_date</text>
+  <text class="s" x="560" y="438">Producto · org × día · 848</text>
+  <text class="i" x="404" y="458">D-015 · D-016 · D-023 · tardíos: 36.807 (85,2 %),</text>
+  <text class="i" x="404" y="471">recuperados por el flujo D</text>
+
+  <rect class="store" x="784" y="104" width="174" height="374" rx="4"/>
+  <text class="tc" x="871" y="124" fill="#8a6508">AstraDB</text>
+  <text class="s" x="794" y="140">keyspace cloud_analytics</text>
+  <text class="m" x="794" y="162">org_daily_usage_by_</text>
+  <text class="m" x="794" y="174">service</text>
+  <text class="s" x="794" y="188">((org_id), usage_date, service)</text>
+  <text class="m" x="794" y="208">top_services_by_org_14d</text>
+  <text class="s" x="794" y="222">((org_id, as_of_date), rank)</text>
+  <text class="m" x="794" y="242">tickets_by_severity_</text>
+  <text class="m" x="794" y="254">date</text>
+  <text class="s" x="794" y="268">((severity), ticket_date)</text>
+  <text class="m" x="794" y="288">revenue_by_org_month</text>
+  <text class="s" x="794" y="302">((org_id), month)</text>
+  <text class="m" x="794" y="322">genai_tokens_by_org_</text>
+  <text class="m" x="794" y="334">date</text>
+  <text class="s" x="794" y="348">((org_id), usage_date)</text>
+  <text class="s" x="794" y="372">partición de total 'all'</text>
+  <text class="s" x="794" y="386">en Q3, Q4 y Q5 (D-024)</text>
+  <text class="s" x="794" y="406">cassandra-driver · upsert</text>
+  <text class="i" x="794" y="422">streaming carga primero,</text>
+  <text class="i" x="794" y="435">el reconciliado lo pisa</text>
+  <text class="i" x="794" y="458">D-017 · D-018 · D-024</text>
+
+  <rect class="box" x="994" y="104" width="154" height="102" rx="4"/>
+  <text class="tc" x="1071" y="122">FinOps</text>
+  <text class="s" x="1004" y="140">Q1 costo y requests</text>
+  <text class="s" x="1004" y="154">por día · 40 ms</text>
+  <text class="s" x="1004" y="172">Q2 Top-N en 14 días · 41 ms</text>
+  <text class="s" x="1004" y="190">Q4 revenue mensual · 38 ms</text>
+
+  <rect class="box" x="994" y="216" width="154" height="70" rx="4"/>
+  <text class="tc" x="1071" y="234">Soporte</text>
+  <text class="s" x="1004" y="252">Q3 críticos y SLA breach</text>
+  <text class="s" x="1004" y="266">30 días · 38 ms</text>
+
+  <rect class="box" x="994" y="296" width="154" height="70" rx="4"/>
+  <text class="tc" x="1071" y="314">Producto / GenAI</text>
+  <text class="s" x="1004" y="332">Q5 tokens y costo</text>
+  <text class="s" x="1004" y="346">por día · 37 ms</text>
+
+  <rect class="green" x="994" y="376" width="154" height="102" rx="4"/>
+  <text class="s" x="1004" y="394">Objetivo O6: &lt; 1 s</text>
+  <text class="s" x="1004" y="410">token de solo lectura</text>
+  <text class="s" x="1004" y="424">(D-025): escribir da</text>
+  <text class="s" x="1004" y="438">Unauthorized</text>
+  <text class="i" x="1004" y="462">evidence/serving/</text>
+
+  <path class="ln" d="M180,188 L216,188" marker-end="url(#a)"/>
+  <path class="ln" d="M180,350 L216,350" marker-end="url(#a)"/>
+  <path class="ln" d="M356,188 L392,138" marker-end="url(#a)"/>
+  <path class="ln" d="M356,350 L392,150" marker-end="url(#a)"/>
+  <path class="ln" d="M570,160 L570,168" marker-end="url(#a)"/>
+  <path class="ln" d="M570,266 L570,274" marker-end="url(#a)"/>
+  <path class="ln" d="M748,330 L784,300" marker-end="url(#a)"/>
+  <path class="ln" d="M748,420 L784,400" marker-end="url(#a)"/>
+  <path class="ln" d="M958,155 L994,155" marker-end="url(#a)"/>
+  <path class="ln" d="M958,260 L994,250" marker-end="url(#a)"/>
+  <path class="ln" d="M958,330 L994,330" marker-end="url(#a)"/>
+
+  <rect class="store" x="392" y="504" width="356" height="70" rx="4"/>
+  <text class="ty" x="404" y="523">QUARANTINE</text>
+  <text class="s" x="404" y="539">Bronze: rechazo con motivo (esquema, clave nula o repetida)</text>
+  <text class="s" x="404" y="553">Silver: copia de auditoría · value_nulo 877 · unit 2.038</text>
+  <text class="s" x="404" y="567">CSAT fuera de escala 40 · last_login 232 · conversión 96</text>
+  <path class="ly" d="M392,128 L386,128 L386,532 L392,532" marker-end="url(#ay)"/>
+  <path class="ly" d="M392,210 L386,210"/>
+
+  <rect class="green" x="20" y="504" width="348" height="96" rx="4"/>
+  <text class="tg" x="32" y="523">EJECUCIÓN Y REPRODUCIBILIDAD</text>
+  <text class="s" x="32" y="541">Google Colab · PySpark 4.2.0 local[*] · Java 17 (S-01)</text>
+  <text class="m" x="32" y="557">python -m src.pipeline --reset [--with-serving]</text>
+  <text class="s" x="32" y="573">notebooks/00_pipeline_colab.ipynb · 64 tests</text>
+  <text class="s" x="32" y="589">2 corridas desde cero: variación 0 en 23 tablas (O4, O7)</text>
+
+  <rect class="green" x="392" y="582" width="356" height="18" rx="4"/>
+  <text class="s" x="404" y="595">Checkpoints fuera de las zonas: _checkpoints/ (no son dato)</text>
+
+  <rect class="col" x="772" y="504" width="388" height="96" rx="6"/>
+  <text class="t" x="784" y="523">DECISIONES Y LÍMITES</text>
+  <text class="s" x="784" y="541">25 decisiones registradas (DECISIONS.md), 0 abiertas</text>
+  <text class="s" x="784" y="557">Límites declarados: tasa ARS (D-019) · GenAI desde 18/07</text>
+  <text class="s" x="784" y="573">anomalías sin etiquetas (D-016) · escala no medida en clúster</text>
+  <text class="i" x="784" y="591">README: limitaciones y solución de problemas</text>
+
+  <rect class="col" x="20" y="614" width="1140" height="172" rx="6"/>
+  <text x="32" y="636" font-size="13" font-weight="700" fill="#434d6b">CAPACIDADES TRANSVERSALES — implementadas y verificables (docs/gobierno.md)</text>
+  <text class="s" x="32" y="660"><tspan font-weight="700">Calidad:</tspan> controles en cada frontera · quarantine con motivo · invariantes entre columnas · conservación de filas y cuadre de totales que detienen el job</text>
+  <text class="s" x="32" y="682"><tspan font-weight="700">Metadatos:</tspan> catálogo como código (src/governance/catalog.py) · diccionario de 39 datasets y 447 columnas · test que falla si una columna no está documentada</text>
+  <text class="s" x="32" y="704"><tspan font-weight="700">Linaje:</tspan> source_file · ingest_ts · silver_ts · batch_id · last_reconciled_at · trazado de una anomalía de Gold hasta la línea de Landing</text>
+  <text class="s" x="32" y="726"><tspan font-weight="700">Gobierno y seguridad:</tspan> responsables R1–R4 por dataset · retención declarada · credenciales por entorno o Colab Secrets · test anti-secretos · email solo en Bronze</text>
+  <text class="s" x="32" y="748"><tspan font-weight="700">Mínimo privilegio:</tspan> token de administrador solo para la carga · token de solo lectura para las consultas, verificado en cada corrida (D-025)</text>
+  <text class="s" x="32" y="770"><tspan font-weight="700">Observabilidad:</tspan> log JSON por corrida (filas, rechazos por regla, rutas, bytes, duración) · tardíos y latencia por micro-lote · latencia por consulta</text>
+</svg>
