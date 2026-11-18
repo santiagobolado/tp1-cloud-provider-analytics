@@ -1,6 +1,6 @@
 # Muestras de quarantine
 
-Generado: 2026-11-13T18:57:36+00:00 · `python notebooks/03_muestras_quarantine.py`
+Generado: 2026-11-18T20:14:17+00:00 · `python notebooks/03_muestras_quarantine.py`
 
 Quarantine guarda, por regla, el registro y el motivo. En Bronze, lo que va a
 quarantine **no entra** a la zona. En Silver es una **copia de auditoría**: el evento
@@ -37,6 +37,39 @@ sigue en Silver con su flag (D-009, D-014).
 | evt_t5brta67j5l3 | org_0lvsnujz | analytics | requests | 121.0 | count | -154.4608 | costo_negativo |
 | evt_9ur456xoexl5 | org_h2m5zja8 | genai | requests | 140.0 | count | -19.8245 | costo_negativo |
 | evt_zdg3w43spvdt | org_rixa11dp | genai | requests | 122.0 | count | -16.147 | costo_negativo |
+
+## 1b. Silver de maestros · dataset real (D-022)
+
+| Entidad | Regla | Registros | Tratamiento |
+|---|---|---|---|
+| `billing_monthly` | — | 0 | sin defectos; FX ruidoso y notas de crédito son flags de negocio |
+| `support_tickets` | `csat_fuera_de_escala` | 40 | CSAT de consumo en nulo; el ticket sigue contando |
+| `users` | `last_login_antes_de_created` | 232 | invariante temporal del TP1; flag y copia |
+| `marketing_touches` | `converted_sin_click` | 96 | invariante del embudo del TP1; flag y copia |
+
+### `support_tickets` · `csat_fuera_de_escala` · 3 de 40 (cómo quedaron en Silver)
+
+| ticket_id | severity | csat_raw | csat | sla_breached | quality_flags |
+|---|---|---|---|---|---|
+| tkt_07vscqmp | high | 6.0 | None | False | csat_fuera_de_escala |
+| tkt_0gwhaoqh | medium | 6.0 | None | False | csat_fuera_de_escala |
+| tkt_1m4wu3ga | low | 6.0 | None | False | csat_fuera_de_escala |
+
+### `users` · `last_login_antes_de_created` · 3 de 232 (cómo quedaron en Silver)
+
+| user_id | org_id | created_at | last_login | quality_flags |
+|---|---|---|---|---|
+| user_01nouhtc | org_1swjckjl | 2025-07-12 | 2025-06-05 | last_login_antes_de_created |
+| user_04x0qzfh | org_tvhhpbmy | 2025-07-14 | 2025-06-12 | last_login_antes_de_created |
+| user_050ui22k | org_uzfk8ut0 | 2025-07-13 | 2025-06-29 | last_login_antes_de_created |
+
+### `marketing_touches` · `converted_sin_click` · 3 de 96 (cómo quedaron en Silver)
+
+| touch_id | campaign | channel | clicked | converted | quality_flags |
+|---|---|---|---|---|---|
+| mkt_02moyqj3 | webinar_finops | ads | False | True | converted_sin_click |
+| mkt_049dd5s0 | security_week | event | False | True | converted_sin_click |
+| mkt_0914abaz | webinar_finops | event | False | True | converted_sin_click |
 
 ## 2. Bronze · demostración con filas sucias conocidas
 

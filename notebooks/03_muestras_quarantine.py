@@ -7,6 +7,8 @@ cada regla para que se pueda revisar sin correr el pipeline.
 
   Parte 1 · Silver (dataset real): lee data/quarantine/silver_usage_events,
             que genera `python -m src.transform.silver_job`.
+  Parte 1b · Silver de maestros (dataset real): data/quarantine/silver_<entidad>
+            de billing, tickets, users y marketing (D-022).
   Parte 2 · Bronze (demostración): el dataset no trae filas que rompan el
             esquema o la clave, así que se copia Landing a un directorio
             temporal, se le agregan filas sucias conocidas y se corre la misma
@@ -96,6 +98,42 @@ rows = (silver.filter("is_credit_adjustment").orderBy("cost_usd").limit(N)
         .select(*SILVER_COLS).collect())
 w(f"### `costo_negativo` · los {N} más negativos (flag, no quarantine)\n")
 table([{**r.asDict(), "quality_flags": ", ".join(r["quality_flags"])} for r in rows], SILVER_COLS)
+
+# --- Parte 1b: Silver de maestros, dataset real (D-022) ------------------------
+DOMAIN = {  # entidad -> (clave, columnas que muestran la violación)
+    "support_tickets": ("ticket_id", ["ticket_id", "severity", "csat_raw", "csat", "sla_breached"]),
+    "users": ("user_id", ["user_id", "org_id", "created_at", "last_login"]),
+    "marketing_touches": ("touch_id", ["touch_id", "campaign", "channel", "clicked", "converted"]),
+}
+w("## 1b. Silver de maestros · dataset real (D-022)\n")
+w("| Entidad | Regla | Registros | Tratamiento |")
+w("|---|---|---|---|")
+trat_dom = {"csat_fuera_de_escala": "CSAT de consumo en nulo; el ticket sigue contando",
+            "last_login_antes_de_created": "invariante temporal del TP1; flag y copia",
+            "converted_sin_click": "invariante del embudo del TP1; flag y copia"}
+dom_q = {}
+for entity in ["billing_monthly", *DOMAIN]:
+    try:                       # billing no tiene defectos: la ruta existe pero está vacía
+        qd = spark.read.parquet(f"{LAKE}/quarantine/silver_{entity}")
+        c = {r["regla"]: r["count"] for r in qd.groupBy("regla").count().collect()}
+    except Exception:
+        qd, c = None, {}
+    dom_q[entity] = (qd, c)
+    if not c:
+        w(f"| `{entity}` | — | 0 | sin defectos; FX ruidoso y notas de crédito son flags de negocio |")
+    for regla, n in sorted(c.items()):
+        w(f"| `{entity}` | `{regla}` | {miles(n)} | {trat_dom.get(regla, '')} |")
+w()
+for entity, (key, cols) in DOMAIN.items():
+    qd, c = dom_q[entity]
+    for regla in sorted(c):
+        ids = [r["record_id"] for r in qd.filter(F.col("regla") == regla)
+               .orderBy("record_id").limit(N).collect()]
+        rows = (spark.read.parquet(f"{LAKE}/silver/{entity}").filter(F.col(key).isin(ids))
+                .orderBy(key).select(*cols, "quality_flags").collect())
+        w(f"### `{entity}` · `{regla}` · {N} de {miles(c[regla])} (cómo quedaron en Silver)\n")
+        table([{**r.asDict(), "quality_flags": ", ".join(r["quality_flags"])} for r in rows],
+              cols + ["quality_flags"])
 
 # --- Parte 2: Bronze, demostración con filas sucias ----------------------------
 tmp = tempfile.mkdtemp(prefix="quarantine_demo_")
