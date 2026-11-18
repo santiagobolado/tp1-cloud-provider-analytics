@@ -278,3 +278,20 @@ Declaradas en `DECISIONS.md`; ninguna impide responder las cinco consultas.
 | `evidence/linaje_trazado.md` | Una anomalía seguida de Gold hasta la línea de Landing |
 | `evidence/a07_orden_eventos.md` | Cierre de A-07: orden temporal de los 120 archivos |
 | `evidence/serving/` | Consultas CQL, resultados, latencias y capturas de AstraDB |
+
+## Entrega final
+
+| Archivo | Contenido |
+|---|---|
+| `docs/EntregaFinal_BigData_Grupo4.pdf` / `.docx` | **Documentación técnica final** (arquitectura, pipeline, marts, serving, analítica, calidad, gobierno, decisiones y limitaciones) |
+| `docs/EntregaFinal_Anexos_BigData_Grupo4.pdf` / `.docx` | Anexos A–E: evidencias, quarantine, serving con las cinco consultas, diccionario y linaje, cierre del backlog |
+| `docs/diagrama_arquitectura_v3.png` / `.svg` / `.md` | Arquitectura final, sin componentes pendientes, y cambios respecto de la v2 |
+| `src/`, `tests/`, `infra/cql/` | Pipeline completo, 64 pruebas, CQL de las cinco tablas y las cinco consultas |
+| `notebooks/00_pipeline_colab.ipynb` | Ejecución completa en Colab, incluido el serving con token de solo lectura |
+| `DECISIONS.md` | D-001 a D-025 (D-018 en adelante, de esta entrega); sin decisiones abiertas |
+| `docs/plan_correcciones.md` | Correcciones del feedback de las dos entregas parciales |
+| `docs/backlog_final.md` | Backlog con el estado de cierre de cada ítem |
+| `docs/gobierno.md` | Gobierno, versión final: responsables, metadatos, linaje, controles, seguridad, observabilidad |
+| `docs/diccionario_datos.md` | 39 datasets, 447 columnas (generado desde `src/governance/catalog.py`) |
+| `evidence/idempotencia.md` | Pipeline y AstraDB ejecutados dos veces: variación 0 en 23 tablas |
+| `evidence/serving/` | Q1 a Q5: CQL, resultados, latencias, token usado y capturas de AstraDB |
