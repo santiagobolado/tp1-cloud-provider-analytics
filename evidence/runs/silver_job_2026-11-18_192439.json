@@ -1,0 +1,91 @@
+{
+  "job": "silver_job",
+  "ejecutado": "2026-11-18T19:24:13+00:00",
+  "eventos": {
+    "filas_bronze": 43200,
+    "filas_silver": 43200,
+    "duplicados_descartados": 0,
+    "particiones_event_date_x_service": 360,
+    "archivos_parquet": 360,
+    "filas_con_algun_flag": 3117,
+    "flags": {
+      "costo_negativo": 211,
+      "unit_nulo_con_value": 2038,
+      "value_nulo": 877
+    },
+    "costo_total_usd": 147433.98,
+    "costo_de_eventos_con_metrica_nula_usd": 2968.03,
+    "v1_con_carbon_kg": 0
+  },
+  "quarantine_silver_por_regla": {
+    "unit_nulo_con_value": 2038,
+    "value_nulo": 877
+  },
+  "maestros": {
+    "customers_orgs": 80,
+    "orgs_por_nps_source": {
+      "None": 3,
+      "crm": 25,
+      "survey": 52
+    },
+    "resources": 400
+  },
+  "dominios": {
+    "billing_monthly": {
+      "filas_bronze": 240,
+      "filas_silver": 240,
+      "flags": {
+        "fx_usd_ruidoso": 160,
+        "impuesto_signo_inconsistente": 13,
+        "nota_de_credito": 13
+      },
+      "quarantine_por_regla": {},
+      "net_revenue_usd": 132074.83,
+      "total_billed_usd": 164293.06,
+      "por_moneda": {
+        "ARS": 51,
+        "USD": 160,
+        "EUR": 29
+      }
+    },
+    "support_tickets": {
+      "filas_bronze": 1000,
+      "filas_silver": 1000,
+      "flags": {
+        "csat_fuera_de_escala": 40
+      },
+      "quarantine_por_regla": {
+        "csat_fuera_de_escala": 40
+      },
+      "por_severidad": {
+        "critical": 56,
+        "low": 412,
+        "high": 204,
+        "medium": 328
+      },
+      "abiertos": 240,
+      "sla_breached": 95
+    },
+    "users": {
+      "filas_bronze": 800,
+      "filas_silver": 800,
+      "flags": {
+        "last_login_antes_de_created": 232
+      },
+      "quarantine_por_regla": {
+        "last_login_antes_de_created": 232
+      }
+    },
+    "marketing_touches": {
+      "filas_bronze": 1500,
+      "filas_silver": 1500,
+      "flags": {
+        "converted_sin_click": 96
+      },
+      "quarantine_por_regla": {
+        "converted_sin_click": 96
+      }
+    }
+  },
+  "segundos": 82.6
+}

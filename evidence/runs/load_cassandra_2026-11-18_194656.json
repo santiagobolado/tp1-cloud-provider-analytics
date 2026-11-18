@@ -1,0 +1,29 @@
+{
+  "job": "load_cassandra",
+  "destino": "astra",
+  "keyspace": "cloud_analytics",
+  "ejecutado": "2026-11-18T19:46:56+00:00",
+  "filas_enviadas": {
+    "speed->org_daily_usage_by_service": 2067,
+    "org_daily_usage_by_service": 11050,
+    "top_services_by_org_14d": 12314,
+    "tickets_by_severity_date": 575,
+    "revenue_by_org_month": 243,
+    "genai_tokens_by_org_date": 893
+  },
+  "count_antes": {
+    "org_daily_usage_by_service": 11050,
+    "top_services_by_org_14d": 12314,
+    "tickets_by_severity_date": 0,
+    "revenue_by_org_month": 0,
+    "genai_tokens_by_org_date": 0
+  },
+  "count_despues": {
+    "org_daily_usage_by_service": 11050,
+    "top_services_by_org_14d": 12314,
+    "tickets_by_severity_date": 575,
+    "revenue_by_org_month": 243,
+    "genai_tokens_by_org_date": 893
+  },
+  "segundos": 108.1
+}
